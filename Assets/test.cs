@@ -25,37 +25,42 @@ public class MsgTypeTwo : Msg
 #region 预设contrler
 public interface IMsgCtrler
 {
-    void AddPrefabs();
+    void AddPrefabs(GameObject parentGo);
 }
-public class MsgTypeOneCtrler : MonoBehaviour, IMsgCtrler
+public class MsgTypeOneCtrler : IMsgCtrler
 {
     public UILabel lbl;
     public UISprite Icon;
-    public void AddPrefabs()
+    public void AddPrefabs(GameObject parentGo)
     {
-        var goPrefab = Resources.Load("TypeOne", typeof(GameObject));
-        GameObject go = Instantiate(goPrefab) as GameObject;
-        lbl = GetComponentInChildren<UILabel>();
-        Icon = GetComponentInChildren<UISprite>();
+        var goPrefab = Resources.Load("TypeOne", typeof(GameObject))as GameObject;
+        //GameObject go = Instantiate(goPrefab) as GameObject;
+        GameObject go = NGUITools.AddChild(parentGo, goPrefab);
+
+        lbl = go.GetComponentInChildren<UILabel>();
+        Icon = go.GetComponentInChildren<UISprite>();
+        
     }
     public void InitPrefab(MsgTypeOne msg)
     {
         lbl.text = msg.content;
         Icon.color = msg.IconColor;
     }
-    
+
 }
-public class MsgTypeTwoCtrler : MonoBehaviour, IMsgCtrler
+public class MsgTypeTwoCtrler :  IMsgCtrler
 {
     public UILabel lbl;
     public UISprite TypeSp;
 
-    public void AddPrefabs()
+    public void AddPrefabs(GameObject parentGo)
     {
-        var goPrefab = Resources.Load("TypeTwo", typeof(GameObject));
-        GameObject go = Instantiate(goPrefab) as GameObject;
-        lbl = GetComponentInChildren<UILabel>();
-        TypeSp = GetComponentInChildren<UISprite>();
+        var goPrefab = Resources.Load("TypeTwo", typeof(GameObject)) as GameObject;
+        //GameObject go = Instantiate(goPrefab) as GameObject;
+        GameObject go = NGUITools.AddChild(parentGo, goPrefab);
+        lbl = go.GetComponentInChildren<UILabel>();
+        TypeSp = go.GetComponentInChildren<UISprite>();
+
     }
     public void InitPrefab(MsgTypeTwo msg)
     {
@@ -70,6 +75,7 @@ public class test : MonoBehaviour
     List<Msg> MsgList = new List<Msg>();
     List<IMsgCtrler> CtrlerList = new List<IMsgCtrler>();
     public int index = 0;
+    public UITable ParentGo;
 
     [ContextMenu("AddOne")]
     public void InitMsgTypeOne()
@@ -77,7 +83,7 @@ public class test : MonoBehaviour
         index++;
         MsgTypeOne msg = new MsgTypeOne();
         msg.content = index.ToString();
-
+        msg.IconColor = Color.red;
         MsgList.Add(msg);
     }
 
@@ -87,13 +93,30 @@ public class test : MonoBehaviour
         index++;
         MsgTypeTwo msg = new MsgTypeTwo();
         msg.content = index.ToString();
+        msg.TypeColor = Color.blue;
         MsgList.Add(msg);
 
     }
 
+    [ContextMenu("TestComeText")]
+        public void TestComeText()
+    {
+        InitMsgTypeOne();
+        InitMsgTypeTwo();
+        InitMsgTypeTwo();
+        InitMsgTypeTwo();
+        InitMsgTypeOne();
+        InitMsgTypeOne();
+        CreatePrefabs();
+        ShowMsg();
+        ParentGo.Reposition();
+    }
+
+
     [ContextMenu("CreatePrefabs")]
     public void CreatePrefabs()
     {
+
         for (int i = 0; i < MsgList.Count; i++)
         {
             CreatePfb(MsgList[i]);
@@ -121,7 +144,7 @@ public class test : MonoBehaviour
                 twoCtrler.InitPrefab(msg as MsgTypeTwo);
             }
         }
-       
+
 
     }
 
@@ -130,13 +153,13 @@ public class test : MonoBehaviour
         if (msg is MsgTypeOne)
         {
             MsgTypeOneCtrler ctrler = new MsgTypeOneCtrler();
-            ctrler.AddPrefabs();
+            ctrler.AddPrefabs(ParentGo.gameObject);
             CtrlerList.Add(ctrler);
         }
         if (msg is MsgTypeTwo)
         {
             MsgTypeTwoCtrler ctrler = new MsgTypeTwoCtrler();
-            ctrler.AddPrefabs();
+            ctrler.AddPrefabs(ParentGo.gameObject);
             CtrlerList.Add(ctrler);
         }
     }
