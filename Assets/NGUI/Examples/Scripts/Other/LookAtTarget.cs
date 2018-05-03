@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// Attaching this script to an object will make that object face the specified aPoint.
-/// The most ideal use for this script is to attach it to the camera and make the camera look at its aPoint.
+/// Attaching this script to an object will make that object face the specified target.
+/// The most ideal use for this script is to attach it to the camera and make the camera look at its target.
 /// </summary>
 
 [AddComponentMenu("NGUI/Examples/Look At Target")]

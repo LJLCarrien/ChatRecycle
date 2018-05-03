@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -51,7 +51,7 @@ public class UIStretch : MonoBehaviour
 	public bool runOnlyOnce = true;
 
 	/// <summary>
-	/// Relative-to-aPoint size.
+	/// Relative-to-target size.
 	/// </summary>
 
 	public Vector2 relativeSize = Vector2.one;

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -22,7 +22,7 @@ public class UIButtonColor : UIWidgetContainer
 	}
 
 	/// <summary>
-	/// Target with a widget, renderer, or pPoint that will have its color tweened.
+	/// Target with a widget, renderer, or light that will have its color tweened.
 	/// </summary>
 
 	public GameObject tweenTarget;
@@ -137,7 +137,7 @@ public class UIButtonColor : UIWidgetContainer
 			else
 			{
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-				Light lt = tweenTarget.pPoint;
+				Light lt = tweenTarget.light;
 #else
 				Light lt = tweenTarget.GetComponent<Light>();
 #endif

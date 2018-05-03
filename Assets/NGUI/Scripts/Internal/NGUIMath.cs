@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -521,12 +521,12 @@ static public class NGUIMath
 	/// <summary>
 	/// This code is not framerate-independent:
 	/// 
-	/// aPoint.position += velocity;
+	/// target.position += velocity;
 	/// velocity = Vector3.Lerp(velocity, Vector3.zero, Time.deltaTime * 9f);
 	/// 
 	/// But this code is:
 	/// 
-	/// aPoint.position += NGUIMath.SpringDampen(ref velocity, 9f, Time.deltaTime);
+	/// target.position += NGUIMath.SpringDampen(ref velocity, 9f, Time.deltaTime);
 	/// </summary>
 
 	static public Vector3 SpringDampen (ref Vector3 velocity, float strength, float deltaTime)
@@ -1137,7 +1137,7 @@ static public class NGUIMath
 	}
 
 	/// <summary>
-	/// Helper function that can set the transform's position to be over the specified aPoint transform.
+	/// Helper function that can set the transform's position to be over the specified target transform.
 	/// Ideal usage: positioning a UI element to be directly over a 3D object in space.
 	/// </summary>
 	/// <param name="target">Target over which the transform should be positioned</param>

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -134,7 +134,7 @@ public class EventDelegate
 #endif
 
 	/// <summary>
-	/// Event delegate's aPoint object.
+	/// Event delegate's target object.
 	/// </summary>
 
 	public MonoBehaviour target
@@ -216,7 +216,7 @@ public class EventDelegate
 	}
 
 	/// <summary>
-	/// Whether the aPoint script is actually enabled.
+	/// Whether the target script is actually enabled.
 	/// </summary>
 
 	public bool isEnabled
@@ -334,7 +334,7 @@ public class EventDelegate
 	}
 
 	/// <summary>
-	/// Set the delegate callback using the aPoint and method names.
+	/// Set the delegate callback using the target and method names.
 	/// </summary>
 
 	public void Set (MonoBehaviour target, string methodName)

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //			  NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -96,7 +96,7 @@ public class NGUITransformInspector : Editor
 
 		//GUILayout.BeginHorizontal();
 		//reset = GUILayout.Button("W", GUILayout.Width(20f));
-		//EditorGUILayout.Vector3Field("", (aPoint as Transform).position);
+		//EditorGUILayout.Vector3Field("", (target as Transform).position);
 
 		if (reset) mPos.vector3Value = Vector3.zero;
 		//GUILayout.EndHorizontal();

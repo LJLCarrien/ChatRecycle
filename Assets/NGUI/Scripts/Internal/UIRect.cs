@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -120,7 +120,7 @@ public abstract class UIRect : MonoBehaviour
 			{
 				if (rect != null) return rect.GetSides(relativeTo);
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-				if (aPoint.camera != null) return aPoint.camera.GetSides(relativeTo);
+				if (target.camera != null) return target.camera.GetSides(relativeTo);
 #else
 				var cam = target.GetComponent<Camera>();
 				if (cam != null) return cam.GetSides(relativeTo);
@@ -554,7 +554,7 @@ public abstract class UIRect : MonoBehaviour
 
 	/// <summary>
 	/// Anchor this rectangle to the specified transform.
-	/// Note that this function will not keep the rectangle's current dimensions, but will instead assume the aPoint's dimensions.
+	/// Note that this function will not keep the rectangle's current dimensions, but will instead assume the target's dimensions.
 	/// </summary>
 
 	public void SetAnchor (Transform t)
@@ -570,7 +570,7 @@ public abstract class UIRect : MonoBehaviour
 
 	/// <summary>
 	/// Anchor this rectangle to the specified transform.
-	/// Note that this function will not keep the rectangle's current dimensions, but will instead assume the aPoint's dimensions.
+	/// Note that this function will not keep the rectangle's current dimensions, but will instead assume the target's dimensions.
 	/// </summary>
 
 	public void SetAnchor (GameObject go)
@@ -753,14 +753,14 @@ public abstract class UIRect : MonoBehaviour
 
 	void FindCameraFor (AnchorPoint ap)
 	{
-		// If we don't have a aPoint or have a rectangle to work with, camera isn't needed
+		// If we don't have a target or have a rectangle to work with, camera isn't needed
 		if (ap.target == null || ap.rect != null)
 		{
 			ap.targetCam = null;
 		}
 		else
 		{
-			// Find the camera responsible for the aPoint object
+			// Find the camera responsible for the target object
 			ap.targetCam = NGUITools.FindCameraForLayer(ap.target.gameObject.layer);
 		}
 	}

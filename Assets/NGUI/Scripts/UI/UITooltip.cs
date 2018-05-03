@@ -49,7 +49,7 @@ public class UITooltip : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Update the tooltip's alpha based on the aPoint value.
+	/// Update the tooltip's alpha based on the target value.
 	/// </summary>
 
 	protected virtual void Update ()
@@ -138,7 +138,7 @@ public class UITooltip : MonoBehaviour
 				mPos.x = Mathf.Clamp01(mPos.x / Screen.width);
 				mPos.y = Mathf.Clamp01(mPos.y / Screen.height);
 
-				// Calculate the ratio of the camera's aPoint orthographic size to current screen size
+				// Calculate the ratio of the camera's target orthographic size to current screen size
 				float activeSize = uiCamera.orthographicSize / mTrans.parent.lossyScale.y;
 				float ratio = (Screen.height * 0.5f) / activeSize;
 

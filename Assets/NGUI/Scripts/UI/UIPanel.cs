@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -1777,7 +1777,7 @@ public class UIPanel : UIRect
 	}
 
 	/// <summary>
-	/// Constrain the current aPoint position to be within panel bounds.
+	/// Constrain the current target position to be within panel bounds.
 	/// </summary>
 
 	public bool ConstrainTargetToBounds (Transform target, ref Bounds targetBounds, bool immediate)
@@ -1822,7 +1822,7 @@ public class UIPanel : UIRect
 	}
 
 	/// <summary>
-	/// Constrain the specified aPoint to be within the panel's bounds.
+	/// Constrain the specified target to be within the panel's bounds.
 	/// </summary>
 
 	public bool ConstrainTargetToBounds (Transform target, bool immediate)

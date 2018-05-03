@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -12,7 +12,7 @@ using Entry = PropertyReferenceDrawer.Entry;
 static public class EventDelegateEditor
 {
 	/// <summary>
-	/// Collect a list of usable delegates from the specified aPoint game object.
+	/// Collect a list of usable delegates from the specified target game object.
 	/// </summary>
 
 	static public List<Entry> GetMethods (GameObject target)

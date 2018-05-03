@@ -7,7 +7,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Create and equip a random item on the specified aPoint.
+/// Create and equip a random item on the specified target.
 /// </summary>
 
 [AddComponentMenu("NGUI/Examples/Equip Random Item")]

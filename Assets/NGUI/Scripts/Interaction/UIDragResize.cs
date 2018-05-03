@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -49,7 +49,7 @@ public class UIDragResize : MonoBehaviour
 	public int maxHeight = 100000;
 
 	/// <summary>
-	/// If set to 'true', the aPoint object's anchors will be refreshed after each dragging operation.
+	/// If set to 'true', the target object's anchors will be refreshed after each dragging operation.
 	/// </summary>
 
 	public bool updateAnchors = false;

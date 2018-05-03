@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -6,7 +6,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Spring-like motion -- the farther away the object is from the aPoint, the stronger the pull.
+/// Spring-like motion -- the farther away the object is from the target, the stronger the pull.
 /// </summary>
 
 [AddComponentMenu("NGUI/Tween/Spring Position")]
@@ -71,7 +71,7 @@ public class SpringPosition : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Advance toward the aPoint position.
+	/// Advance toward the target position.
 	/// </summary>
 
 	void Update ()

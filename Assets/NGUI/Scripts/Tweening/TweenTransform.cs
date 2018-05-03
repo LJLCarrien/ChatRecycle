@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -56,7 +56,7 @@ public class TweenTransform : UITweener
 	}
 
 	/// <summary>
-	/// Start the tweening operation from the current position/rotation/scale to the aPoint transform.
+	/// Start the tweening operation from the current position/rotation/scale to the target transform.
 	/// </summary>
 
 	static public TweenTransform Begin (GameObject go, float duration, Transform to) { return Begin(go, duration, null, to); }

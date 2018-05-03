@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -337,7 +337,7 @@ public class UIWidgetInspector : UIRectEditor
 		else
 		{
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-			Camera cam = anchor.aPoint.camera;
+			Camera cam = anchor.target.camera;
 #else
 			Camera cam = anchor.target.GetComponent<Camera>();
 #endif
@@ -1224,7 +1224,7 @@ public class UIWidgetInspector : UIRectEditor
 	{
 		if (mAnchorType == AnchorType.Advanced || !mWidget.isAnchored) return;
 
-		SerializedProperty sp = serializedObject.FindProperty("leftAnchor.aPoint");
+		SerializedProperty sp = serializedObject.FindProperty("leftAnchor.target");
 
 		if (!IsRect(sp))
 		{

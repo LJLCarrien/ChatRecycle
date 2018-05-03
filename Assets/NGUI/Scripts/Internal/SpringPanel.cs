@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -51,7 +51,7 @@ public class SpringPanel : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Advance toward the aPoint position.
+	/// Advance toward the target position.
 	/// </summary>
 
 	void Update ()
@@ -60,7 +60,7 @@ public class SpringPanel : MonoBehaviour
 	}
 
     /// <summary>
-    /// Advance toward the aPoint position.
+    /// Advance toward the target position.
 	/// </summary>
 
 	protected virtual void AdvanceTowardsPosition ()

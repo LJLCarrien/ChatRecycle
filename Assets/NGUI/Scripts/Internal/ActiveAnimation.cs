@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -143,7 +143,7 @@ public class ActiveAnimation : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Notify the aPoint when the animation finishes playing.
+	/// Notify the target when the animation finishes playing.
 	/// </summary>
 
 	void Update ()

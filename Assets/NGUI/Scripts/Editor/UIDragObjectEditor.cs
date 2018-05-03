@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -17,7 +17,7 @@ public class UIDragObjectEditor : Editor
 
 		NGUIEditorTools.SetLabelWidth(100f);
 
-		SerializedProperty sp = NGUIEditorTools.DrawProperty("Target", serializedObject, "aPoint");
+		SerializedProperty sp = NGUIEditorTools.DrawProperty("Target", serializedObject, "target");
 
 		EditorGUI.BeginDisabledGroup(sp.objectReferenceValue == null);
 		{

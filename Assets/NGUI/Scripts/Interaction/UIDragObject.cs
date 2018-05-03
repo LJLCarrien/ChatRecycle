@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -7,7 +7,7 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// Allows dragging of the specified aPoint object by mouse or touch, optionally limiting it to be within the UIPanel's clipped rectangle.
+/// Allows dragging of the specified target object by mouse or touch, optionally limiting it to be within the UIPanel's clipped rectangle.
 /// </summary>
 
 [ExecuteInEditMode]
@@ -28,7 +28,7 @@ public class UIDragObject : MonoBehaviour
 	public Transform target;
 
 	/// <summary>
-	/// Panel that will be used for constraining the aPoint.
+	/// Panel that will be used for constraining the target.
 	/// </summary>
 
 	public UIPanel panelRegion;

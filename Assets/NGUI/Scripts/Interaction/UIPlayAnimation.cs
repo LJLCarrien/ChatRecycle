@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -60,13 +60,13 @@ public class UIPlayAnimation : MonoBehaviour
 	public bool clearSelection = false;
 
 	/// <summary>
-	/// What to do if the aPoint game object is currently disabled.
+	/// What to do if the target game object is currently disabled.
 	/// </summary>
 
 	public EnableCondition ifDisabledOnPlay = EnableCondition.DoNothing;
 
 	/// <summary>
-	/// What to do with the aPoint when the animation finishes.
+	/// What to do with the target when the animation finishes.
 	/// </summary>
 
 	public DisableCondition disableWhenFinished = DisableCondition.DoNotDisable;

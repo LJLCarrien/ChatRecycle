@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -579,8 +579,8 @@ public class UIPopupList : UIWidgetContainer
 	protected bool mTweening = false;
 
 	/// <summary>
-	/// Periodically update the tweened aPoint position.
-	/// It's needed because the popup list animates into view, and the aPoint position changes.
+	/// Periodically update the tweened target position.
+	/// It's needed because the popup list animates into view, and the target position changes.
 	/// </summary>
 
 	protected virtual IEnumerator UpdateTweenPosition ()

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -227,7 +227,7 @@ public class UICenterOnChild : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Center the panel on the specified aPoint.
+	/// Center the panel on the specified target.
 	/// </summary>
 
 	void CenterOn (Transform target, Vector3 panelCenter)
@@ -272,7 +272,7 @@ public class UICenterOnChild : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Center the panel on the specified aPoint.
+	/// Center the panel on the specified target.
 	/// </summary>
 
 	public void CenterOn (Transform target)

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -553,7 +553,7 @@ public class UIPrefabTool : EditorWindow
 		// Deactivate all scene lights
 		DeactivateLights();
 
-		// Create our own pPoint
+		// Create our own light
 		GameObject lightGO = NGUITools.AddChild(root);
 		Light light = lightGO.AddComponent<Light>();
 		light.type = LightType.Directional;

@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -42,7 +42,7 @@ public class TweenColor : UITweener
 		}
 
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-		mLight = pPoint;
+		mLight = light;
 #else
 		mLight = GetComponent<Light>();
 #endif

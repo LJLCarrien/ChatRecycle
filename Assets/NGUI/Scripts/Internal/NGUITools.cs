@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -1468,7 +1468,7 @@ static public class NGUITools
 			pos.x = Mathf.Clamp01(pos.x / Screen.width);
 			pos.y = Mathf.Clamp01(pos.y / Screen.height);
 
-			// Calculate the ratio of the camera's aPoint orthographic size to current screen size
+			// Calculate the ratio of the camera's target orthographic size to current screen size
 			float activeSize = cam.orthographicSize / transform.parent.lossyScale.y;
 			float ratio = (Screen.height * 0.5f) / activeSize;
 
@@ -1829,7 +1829,7 @@ static public class NGUITools
 
 #if UNITY_EDITOR || !UNITY_FLASH
 	/// <summary>
-	/// Execute the specified function on the aPoint game object.
+	/// Execute the specified function on the target game object.
 	/// </summary>
 
 	static public void Execute<T> (GameObject go, string funcName) where T : Component
@@ -1848,7 +1848,7 @@ static public class NGUITools
 	}
 
 	/// <summary>
-	/// Execute the specified function on the aPoint game object and all of its children.
+	/// Execute the specified function on the target game object and all of its children.
 	/// </summary>
 
 	static public void ExecuteAll<T> (GameObject root, string funcName) where T : Component
@@ -1892,7 +1892,7 @@ static public class NGUITools
 
 			if (mSizeFrame != frame || !Application.isPlaying)
 			{
-				UnityEngine.Profiling.Profiler.BeginSample("Editor-only GC allocation (NGUITools.screenSize)");
+				Profiler.BeginSample("Editor-only GC allocation (NGUITools.screenSize)");
 				mSizeFrame = frame;
 
 				// There seems to be a Unity 5.4 bug that returns invalid screen size when the mouse is clicked (wtf?) on OSX
@@ -1930,7 +1930,7 @@ static public class NGUITools
 				else
 #endif
 					mGameSize = new Vector2(Screen.width, Screen.height);
-				UnityEngine.Profiling.Profiler.EndSample();
+				Profiler.EndSample();
 			}
 			return mGameSize;
 		}

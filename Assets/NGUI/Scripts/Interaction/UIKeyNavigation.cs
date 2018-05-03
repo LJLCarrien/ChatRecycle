@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -27,7 +27,7 @@ public class UIKeyNavigation : MonoBehaviour
 	}
 
 	/// <summary>
-	/// If a selection aPoint is not set, the aPoint can be determined automatically, restricted by this constraint.
+	/// If a selection target is not set, the target can be determined automatically, restricted by this constraint.
 	/// 'None' means free movement on both horizontal and vertical axis. 'Explicit' means the automatic logic will
 	/// not execute, and only the explicitly set values will be used.
 	/// </summary>

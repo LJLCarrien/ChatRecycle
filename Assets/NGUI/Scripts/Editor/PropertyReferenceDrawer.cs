@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -144,7 +144,7 @@ public class PropertyReferenceDrawer
 	}
 
 	/// <summary>
-	/// The property is either going to be 16 or 34 pixels tall, depending on whether the aPoint has been set or not.
+	/// The property is either going to be 16 or 34 pixels tall, depending on whether the target has been set or not.
 	/// </summary>
 
 	public override float GetPropertyHeight (SerializedProperty prop, GUIContent label)
@@ -175,7 +175,7 @@ public class PropertyReferenceDrawer
 			EditorGUI.BeginDisabledGroup(target.hasMultipleDifferentValues);
 			int index = 0;
 
-			// Get all the properties on the aPoint game object
+			// Get all the properties on the target game object
 			List<Entry> list = GetProperties(comp.gameObject, mustRead, mustWrite);
 
 			// We want the field to look like "Component.property" rather than just "property"
@@ -190,7 +190,7 @@ public class PropertyReferenceDrawer
 			rect.width -= 18f;
 			int choice = EditorGUI.Popup(rect, "", index, names);
 
-			// Update the aPoint object and property name
+			// Update the target object and property name
 			if (GUI.changed && choice > 0)
 			{
 				Entry ent = list[choice - 1];

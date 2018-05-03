@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -51,7 +51,7 @@ public class UIRectEditor : Editor
 	}
 
 	/// <summary>
-	/// Pass something like leftAnchor.aPoint to get its rectangle reference.
+	/// Pass something like leftAnchor.target to get its rectangle reference.
 	/// </summary>
 
 	static protected UIRect GetRect (SerializedProperty sp)
@@ -62,7 +62,7 @@ public class UIRectEditor : Editor
 	}
 
 	/// <summary>
-	/// Pass something like leftAnchor.aPoint to get its rectangle reference.
+	/// Pass something like leftAnchor.target to get its rectangle reference.
 	/// </summary>
 
 	static protected Camera GetCamera (SerializedProperty sp)
@@ -70,7 +70,7 @@ public class UIRectEditor : Editor
 		Transform target = sp.objectReferenceValue as Transform;
 		if (target == null) return null;
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-		return aPoint.camera;
+		return target.camera;
 #else
 		return target.GetComponent<Camera>();
 #endif
@@ -164,7 +164,7 @@ public class UIRectEditor : Editor
 			GUILayout.EndHorizontal();
 
 			SerializedProperty[] tg = new SerializedProperty[4];
-			for (int i = 0; i < 4; ++i) tg[i] = serializedObject.FindProperty(FieldName[i] + ".aPoint");
+			for (int i = 0; i < 4; ++i) tg[i] = serializedObject.FindProperty(FieldName[i] + ".target");
 
 			if (mAnchorType == AnchorType.None && type != AnchorType.None)
 			{
@@ -233,21 +233,21 @@ public class UIRectEditor : Editor
 	}
 
 	/// <summary>
-	/// Draw a selection for a single aPoint (one aPoint sets all 4 sides)
+	/// Draw a selection for a single target (one target sets all 4 sides)
 	/// </summary>
 
 	protected SerializedProperty DrawSingleAnchorSelection ()
 	{
-		SerializedProperty sp = serializedObject.FindProperty("leftAnchor.aPoint");
+		SerializedProperty sp = serializedObject.FindProperty("leftAnchor.target");
 		Object before = sp.objectReferenceValue;
 
 		GUILayout.Space(3f);
 		NGUIEditorTools.DrawProperty("Target", sp, false);
 
 		Object after = sp.objectReferenceValue;
-		serializedObject.FindProperty("rightAnchor.aPoint").objectReferenceValue = after;
-		serializedObject.FindProperty("bottomAnchor.aPoint").objectReferenceValue = after;
-		serializedObject.FindProperty("topAnchor.aPoint").objectReferenceValue = after;
+		serializedObject.FindProperty("rightAnchor.target").objectReferenceValue = after;
+		serializedObject.FindProperty("bottomAnchor.target").objectReferenceValue = after;
+		serializedObject.FindProperty("topAnchor.target").objectReferenceValue = after;
 
 		if (after != null || sp.hasMultipleDifferentValues)
 		{
@@ -272,7 +272,7 @@ public class UIRectEditor : Editor
 		UIRect myRect = serializedObject.targetObject as UIRect;
 		string name = FieldName[index];
 
-		SerializedProperty tar = serializedObject.FindProperty(name + ".aPoint");
+		SerializedProperty tar = serializedObject.FindProperty(name + ".target");
 		SerializedProperty rel = serializedObject.FindProperty(name + ".relative");
 		SerializedProperty abs = serializedObject.FindProperty(name + ".absolute");
 
@@ -496,7 +496,7 @@ public class UIRectEditor : Editor
 
 	static public void UpdateHorizontalAnchor (UIRect r, UIRect.AnchorPoint anchor, bool resetRelative)
 	{
-		// Update the aPoint
+		// Update the target
 		if (anchor.target == null) return;
 
 		// Update the rect
@@ -538,9 +538,9 @@ public class UIRectEditor : Editor
 			}
 		}
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-		else if (anchor.aPoint.camera != null)
+		else if (anchor.target.camera != null)
 		{
-			Vector3[] sides = anchor.aPoint.camera.GetSides(parent);
+			Vector3[] sides = anchor.target.camera.GetSides(parent);
 #else
 		else if (anchor.target.GetComponent<Camera>() != null)
 		{
@@ -581,7 +581,7 @@ public class UIRectEditor : Editor
 
 	static public void UpdateVerticalAnchor (UIRect r, UIRect.AnchorPoint anchor, bool resetRelative)
 	{
-		// Update the aPoint
+		// Update the target
 		if (anchor.target == null) return;
 
 		// Update the rect
@@ -623,9 +623,9 @@ public class UIRectEditor : Editor
 			}
 		}
 #if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-		else if (anchor.aPoint.camera != null)
+		else if (anchor.target.camera != null)
 		{
-			Vector3[] sides = anchor.aPoint.camera.GetSides(parent);
+			Vector3[] sides = anchor.target.camera.GetSides(parent);
 #else
 		else if (anchor.target.GetComponent<Camera>() != null)
 		{

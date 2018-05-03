@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -31,7 +31,7 @@ public class PropertyReference
 #endif
 
 	/// <summary>
-	/// Event delegate's aPoint object.
+	/// Event delegate's target object.
 	/// </summary>
 
 	public Component target
@@ -77,7 +77,7 @@ public class PropertyReference
 	public bool isValid { get { return (mTarget != null && !string.IsNullOrEmpty(mName)); } }
 
 	/// <summary>
-	/// Whether the aPoint script is actually enabled.
+	/// Whether the target script is actually enabled.
 	/// </summary>
 
 	public bool isEnabled
@@ -143,7 +143,7 @@ public class PropertyReference
 	public override int GetHashCode () { return s_Hash; }
 
 	/// <summary>
-	/// Set the delegate callback using the aPoint and method names.
+	/// Set the delegate callback using the target and method names.
 	/// </summary>
 
 	public void Set (Component target, string methodName)
@@ -380,7 +380,7 @@ public class PropertyReference
 #else
 		if (from == to) return true;
 #endif
-		// If the aPoint type is a string, just convert the value
+		// If the target type is a string, just convert the value
 		if (to == typeof(string))
 		{
 			value = (value != null) ? value.ToString() : "null";

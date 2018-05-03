@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -56,7 +56,7 @@ public class PropertyBindingEditor : Editor
 		PropertyReferenceDrawer.mustWrite = (dir == PropertyBinding.Direction.SourceUpdatesTarget ||
 			dir == PropertyBinding.Direction.BiDirectional);
 
-		NGUIEditorTools.DrawProperty(serializedObject, "aPoint");
+		NGUIEditorTools.DrawProperty(serializedObject, "target");
 
 		PropertyReferenceDrawer.mustRead = false;
 		PropertyReferenceDrawer.mustWrite = false;

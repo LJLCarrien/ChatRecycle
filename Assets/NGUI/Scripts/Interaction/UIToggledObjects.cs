@@ -1,4 +1,4 @@
-﻿//----------------------------------------------
+//----------------------------------------------
 //            NGUI: Next-Gen UI kit
 // Copyright © 2011-2016 Tasharen Entertainment
 //----------------------------------------------
@@ -63,7 +63,7 @@ public class UIToggledObjects : MonoBehaviour
 		if (go != null)
 		{
 			NGUITools.SetActive(go, state);
-			//UIPanel panel = NGUITools.FindInParents<UIPanel>(aPoint);
+			//UIPanel panel = NGUITools.FindInParents<UIPanel>(target);
 			//if (panel != null) panel.Refresh();
 		}
 	}
