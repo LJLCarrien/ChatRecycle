@@ -91,7 +91,7 @@ public class Recycle<T> where T : class, IRecycle
         else if (state == ItemsState.Head)
             showItemGoLinkList.AddFirst(go);
 
-        Debug.LogError(showItemGoLinkList.Count);
+        //Debug.LogError(showItemGoLinkList.Count);
     }
     public void RemoveShowListFrom(ItemsState state)
     {
@@ -109,7 +109,7 @@ public class Recycle<T> where T : class, IRecycle
             showItemGoLinkList.RemoveFirst();
         }
         AddToResPool(go);
-        Debug.LogError(showItemGoLinkList.Count);
+        //Debug.LogError(showItemGoLinkList.Count);
     }
 
     //resPool
@@ -155,7 +155,7 @@ public class Recycle<T> where T : class, IRecycle
         var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
         var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
 
-        Debug.LogError(tPanelOffset.x+","+tPanelOffset.y);
+        //Debug.LogError(tPanelOffset.x+","+tPanelOffset.y);
         if (moveTop)
         {
             //往上拉
@@ -173,18 +173,18 @@ public class Recycle<T> where T : class, IRecycle
                 {
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
-                        tempBoundy = mScrollView.bounds.min.y - Interval;
-
+                        tempBoundy = showItemGoLinkList.Last.Value.gameObject.transform.localPosition.y - Interval;
                         go = GetItem(ref ctrler);
                         if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler, mShowDataIndex++);
                         itemBounds = NGUIMath.CalculateAbsoluteWidgetBounds(go.transform);//relactive/Abusoute?
                         go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                         tempBoundy = tempBoundy - itemBounds.size.y - Interval;
                         Add2ShowListFrom(ItemsState.Tail, go);
-                        Debug.LogError("加一个");
+                        //Debug.LogError("加一个");
+
                     }
                 }
-
+                CheckBeyondRemoveToResPool();
 
                 //RemoveShowListFrom(ItemsState.Head);
 
@@ -202,6 +202,16 @@ public class Recycle<T> where T : class, IRecycle
     //检测超出移到资源池
     private void CheckBeyondRemoveToResPool()
     {
+        Bounds itemBounds;
+        foreach (GameObject go in showItemGoLinkList)
+        {
+            itemBounds = NGUIMath.CalculateAbsoluteWidgetBounds(go.transform);
+            if (!mBounds.Intersects(itemBounds))
+            {
+                AddToResPool(go);
+            }
+        }
+
 
     }
 
