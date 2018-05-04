@@ -15,6 +15,21 @@ public class ItemCtrler : MonoBehaviour,IRecycle
             return transform.FindChild("Label").GetComponent<UILabel>();
         }
     }
+
+    public Bounds mBounds
+    {
+        get;
+
+        set;
+    }
+
+    public int dataIndex
+    {
+        get;
+
+        set;
+    }
+
     public void SetData(int i)
     {
         mLbl.text = i.ToString();

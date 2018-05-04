@@ -6,18 +6,20 @@ using System.Collections.Generic;
 public interface IRecycle
 {
     GameObject GetGo();
+    Bounds mBounds { get; set; }
+    int dataIndex { get; set; }
 }
 public class Recycle<T> where T : class, IRecycle
 {
     public UIScrollView mScrollView { get; private set; }
     public UIPanel mPanel { get; private set; }
-    public Bounds mBounds { get; private set; }
+    public Bounds mPanelBounds { get; private set; }
     public UIScrollView.Movement mMovement { get { return mScrollView.movement; } }
 
     public Func<T> mAddItem;
-    public Action<T, int> mUpdateItem;
+    public Action<T> mUpdateItem;
 
-    public int Interval = 80;//间隔
+    public int Interval = 10;//间隔
 
     //展示中的
     public LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
@@ -27,20 +29,18 @@ public class Recycle<T> where T : class, IRecycle
 
 
     public int mDataCount { get; private set; }
-    public int mShowDataIndex { get; private set; }
 
-    public Recycle(UIScrollView sv, Func<T> AddItem, Action<T, int> UpdateItem)
+    public Recycle(UIScrollView sv, Func<T> AddItem, Action<T> UpdateItem)
     {
         mScrollView = sv;
         mPanel = sv.panel;
         var mCenter = new Vector3(mPanel.finalClipRegion.x, mPanel.finalClipRegion.y, 0);
         var mSize = new Vector3(mPanel.finalClipRegion.z, mPanel.finalClipRegion.w);
-        mBounds = new Bounds(mCenter, mSize);
+        mPanelBounds = new Bounds(mCenter, mSize);
 
         mAddItem = AddItem;
         mUpdateItem = UpdateItem;
 
-        mShowDataIndex = 0;
         mDataCount = 0;
         RegisterEvent();
 
@@ -60,18 +60,22 @@ public class Recycle<T> where T : class, IRecycle
         float tempBoundy;
 
         mDataCount = dataCount;
-
+        int index = -1;
         if (mMovement == UIScrollView.Movement.Vertical)
         {
-            tempBoundy = mBounds.max.y;
-            while (tempBoundy > mBounds.min.y)
+            tempBoundy = mPanelBounds.max.y;
+            while (tempBoundy > mPanelBounds.min.y)
             {
                 go = GetItem(ref ctrler); ;
-                if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler, mShowDataIndex++);
-                itemBounds = NGUIMath.CalculateAbsoluteWidgetBounds(go.transform);//relactive/Abusoute?
+                ctrler.dataIndex = ++index;
+                if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler);
+                itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);//relactive/Abusoute?
+                ctrler.mBounds = itemBounds;
                 go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                 tempBoundy = tempBoundy - itemBounds.size.y - Interval;
                 Add2ShowListFrom(ItemsState.Tail, go);
+                //Debug.Log(string.Format("{0},{1},{2},{3},{4}", go.transform.localPosition, ctrler.mBounds.size.y, Interval, tempBoundy, ctrler.dataIndex));
+
             }
         }
 
@@ -93,6 +97,7 @@ public class Recycle<T> where T : class, IRecycle
 
         //Debug.LogError(showItemGoLinkList.Count);
     }
+
     public void RemoveShowListFrom(ItemsState state)
     {
         if (showItemGoLinkList.Count <= 0) return;
@@ -116,11 +121,13 @@ public class Recycle<T> where T : class, IRecycle
     private void AddToResPool(GameObject go)
     {
         go.transform.SetParent(mResPool.transform);
+        showItemGoLinkList.Remove(go);
     }
     private void RemoveFromResPool(GameObject go)
     {
         go.transform.SetParent(mScrollView.transform);
     }
+
     private GameObject GetItem(ref T ctrler)
     {
         GameObject go = null;
@@ -142,19 +149,17 @@ public class Recycle<T> where T : class, IRecycle
                 ItemGoDic.Add(go, ctrler);
             }
         }
-
         return go;
     }
     #endregion
 
     private void OnClipMove(UIPanel panel)
     {
-        Bounds bound = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
-        var tPanelOffset = panel.CalculateConstrainOffset(bound.min, bound.max);
+        var scrollViewBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
+        var tPanelOffset = panel.CalculateConstrainOffset(scrollViewBounds.min, scrollViewBounds.max);
 
         var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
         var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
-
         //Debug.LogError(tPanelOffset.x+","+tPanelOffset.y);
         if (moveTop)
         {
@@ -162,64 +167,118 @@ public class Recycle<T> where T : class, IRecycle
             //Debug.LogError("<-1");
             if (showItemGoLinkList.Count > 0)
             {
-                Bounds itemBounds;
-                itemBounds = NGUIMath.CalculateRelativeWidgetBounds(showItemGoLinkList.First.Value.transform);
-                T ctrler = null;
-                GameObject go = null;
-
-                float tempBoundy;
-
-                if (mShowDataIndex < mDataCount)
+                var FirstGo = showItemGoLinkList.Last.Value;//最后一个
+                T FirstCtrler = null;
+                ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
+                var FirstIndex = FirstCtrler.dataIndex;
+                var tempBoundy = FirstGo.transform.localPosition.y - FirstCtrler.mBounds.size.y - Interval;
+                //Debug.Log(string.Format("{0},{1},{2},{3},{4}", FirstGo.transform.localPosition.y, FirstCtrler.mBounds.size.y, Interval, tempBoundy, FirstIndex));
+                
+                if (FirstIndex < mDataCount-1)
                 {
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
-                        tempBoundy = showItemGoLinkList.Last.Value.gameObject.transform.localPosition.y - Interval;
-                        go = GetItem(ref ctrler);
-                        if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler, mShowDataIndex++);
-                        itemBounds = NGUIMath.CalculateAbsoluteWidgetBounds(go.transform);//relactive/Abusoute?
-                        go.transform.localPosition = new Vector3(0, tempBoundy, 0);
-                        tempBoundy = tempBoundy - itemBounds.size.y - Interval;
-                        Add2ShowListFrom(ItemsState.Tail, go);
-                        //Debug.LogError("加一个");
-
+                        T ctrler = null;
+                        var go = GetItem(ref ctrler);
+                        if (ctrler != null)
+                        {
+                            ctrler.dataIndex = ++FirstIndex;
+                            if (mUpdateItem != null) mUpdateItem(ctrler);
+                            ctrler.mBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            go.transform.localPosition = new Vector3(0, tempBoundy, 0);
+                            Add2ShowListFrom(ItemsState.Tail, go);
+                            Debug.Log(ctrler.dataIndex);
+                        }
                     }
                 }
-                CheckBeyondRemoveToResPool();
-
-                //RemoveShowListFrom(ItemsState.Head);
-
             }
+
         }
         else if (moveDown)
         {
-            //Debug.LogError(">1");
             //往下拉
-            //RemoveShowListFrom(ItemsState.Tail);
+            //Debug.LogError(">1");
+            if (showItemGoLinkList.Count > 0)
+            {
+                var FirstGo = showItemGoLinkList.First.Value;//第一个
+                T FirstCtrler = null;
+                ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
+                var FirstIndex = FirstCtrler.dataIndex;
+                var tempBoundy = FirstGo.transform.localPosition.y + FirstCtrler.mBounds.size.y + Interval;
 
+                if (FirstIndex > 0)
+                {
+                    if (mMovement == UIScrollView.Movement.Vertical)
+                    {
+                        T ctrler = null;
+                        var go = GetItem(ref ctrler);
+                        if (ctrler != null)
+                        {
+                            ctrler.dataIndex = --FirstIndex;
+                            if (mUpdateItem != null) mUpdateItem(ctrler);
+                            ctrler.mBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            go.transform.localPosition = new Vector3(0, tempBoundy, 0);
+                            Add2ShowListFrom(ItemsState.Head, go);
+                            Debug.Log(ctrler.dataIndex);
+                        }
+                    }
+                }
+            }
         }
     }
 
+    private Bounds GetItemRealBounds(T ctrler)
+    {
+        Bounds itemBounds;
+        GameObject go = ctrler.GetGo();
+        itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+        //Debug.LogError(string.Format("前：{0},{1},{2},{3}", itemBounds.center, itemBounds.min, itemBounds.max, itemBounds.size));
+
+        Bounds tempBounds = new Bounds();
+        tempBounds = itemBounds;
+        tempBounds.center += mScrollView.transform.localPosition + go.transform.localPosition;
+
+        return tempBounds;
+    }
     //检测超出移到资源池
     private void CheckBeyondRemoveToResPool()
     {
-        Bounds itemBounds;
-        foreach (GameObject go in showItemGoLinkList)
+        int showCount = showItemGoLinkList.Count;
+        T ctrler = null;
+        Bounds b;
+        GameObject go;
+        GameObject[] tmpList = new GameObject[showCount];
+        showItemGoLinkList.CopyTo(tmpList, 0);
+        //Debug.Log(tmpList.Length);
+        for (int i = 0; i < tmpList.Length; i++)
         {
-            itemBounds = NGUIMath.CalculateAbsoluteWidgetBounds(go.transform);
-            if (!mBounds.Intersects(itemBounds))
+            go = tmpList[i];
+            if (ItemGoDic.TryGetValue(go, out ctrler))
             {
-                AddToResPool(go);
+                b = GetItemRealBounds(ctrler);
+                //Debug.LogError(string.Format("{0},{1},{2}", b.center, b.min, b.max));
+
+                if (!mPanelBounds.Intersects(b))
+                {
+                    //Debug.Log("移除"+ b.center);
+                    AddToResPool(go);
+                }
             }
         }
-
-
     }
 
     #region 事件
     private void RegisterEvent()
     {
         mPanel.onClipMove += OnClipMove;
+        mScrollView.onDragFinished += OnDragFinisehd;
     }
+
+    private void OnDragFinisehd()
+    {
+        CheckBeyondRemoveToResPool();
+    }
+
     private void RemoveEvent()
     {
         mPanel.onClipMove -= OnClipMove;
