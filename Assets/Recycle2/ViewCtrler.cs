@@ -3,24 +3,43 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+public class tMsg
+{
+   public int fromWho;
+}
+public class MsgOne: tMsg
+{
+    public int contentOne;
+}
+public class MsgTwo: tMsg
+{
+    public string contentTwo;
+}
 public class ViewCtrler : MonoBehaviour
 {
     public UIScrollView mScrollView;
     public Recycle<ItemCtrler> mRecycle;
 
-    List<int> dataList = new List<int>();
+    List<tMsg> dataList = new List<tMsg>();
+
     public void InitData()
     {
         for (int i = 0; i < 10; i++)
         {
-            dataList.Add(i);
+            MsgOne m = new MsgOne {fromWho =1,contentOne=i};            
+            dataList.Add(m);
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0+i.ToString() };
+            dataList.Add(m);
         }
     }
 
     void Start()
     {
         InitData();
-        mRecycle = new Recycle<ItemCtrler>(mScrollView, AddItem, UpdateItem);
+        mRecycle = new Recycle<ItemCtrler>(mScrollView,10, AddItem, UpdateItem);
         mRecycle.ResetPostion(dataList.Count);
 
         //mPanel = mScrollView.panel;
@@ -78,6 +97,18 @@ public class ViewCtrler : MonoBehaviour
     private void UpdateItem(ItemCtrler ctrler)
     {
         if (ctrler.dataIndex >= dataList.Count) return;
-        ctrler.SetData(ctrler.dataIndex);
+        tMsg info = dataList[ctrler.dataIndex];
+        if (info is MsgOne)
+        {
+            MsgOne mo = info as MsgOne;
+            ctrler.SetData(mo.contentOne);
+
+        }
+        else if (info is MsgTwo)
+        {
+            MsgTwo mt = info as MsgTwo;
+            ctrler.SetDataTwo(mt.contentTwo);
+
+        }
     }
 }

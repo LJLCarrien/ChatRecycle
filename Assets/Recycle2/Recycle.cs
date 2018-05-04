@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public interface IRecycle
 {
     GameObject GetGo();
-    Bounds mBounds { get; set; }
+    Bounds bounds { get; set; }
     int dataIndex { get; set; }
 }
 public class Recycle<T> where T : class, IRecycle
@@ -19,7 +19,7 @@ public class Recycle<T> where T : class, IRecycle
     public Func<T> mAddItem;
     public Action<T> mUpdateItem;
 
-    public int Interval = 10;//间隔
+    public readonly int Interval = 10;//间隔
 
     //展示中的
     public LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
@@ -30,14 +30,16 @@ public class Recycle<T> where T : class, IRecycle
 
     public int mDataCount { get; private set; }
 
-    public Recycle(UIScrollView sv, Func<T> AddItem, Action<T> UpdateItem)
+    public Recycle(UIScrollView sv, int itemInterval, Func<T> AddItem, Action<T> UpdateItem)
     {
+
         mScrollView = sv;
         mPanel = sv.panel;
         var mCenter = new Vector3(mPanel.finalClipRegion.x, mPanel.finalClipRegion.y, 0);
         var mSize = new Vector3(mPanel.finalClipRegion.z, mPanel.finalClipRegion.w);
         mPanelBounds = new Bounds(mCenter, mSize);
 
+        Interval = itemInterval;
         mAddItem = AddItem;
         mUpdateItem = UpdateItem;
 
@@ -50,6 +52,14 @@ public class Recycle<T> where T : class, IRecycle
 
     }
 
+    public void DestoryRecycle()
+    {
+        RemoveEvent();
+        mScrollView = null;
+        mPanel = null;
+        
+        
+    }
 
     public void ResetPostion(int dataCount = 0)
     {
@@ -70,7 +80,7 @@ public class Recycle<T> where T : class, IRecycle
                 ctrler.dataIndex = ++index;
                 if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler);
                 itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);//relactive/Abusoute?
-                ctrler.mBounds = itemBounds;
+                ctrler.bounds = itemBounds;
                 go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                 tempBoundy = tempBoundy - itemBounds.size.y - Interval;
                 Add2ShowListFrom(ItemsState.Tail, go);
@@ -171,10 +181,10 @@ public class Recycle<T> where T : class, IRecycle
                 T FirstCtrler = null;
                 ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
                 var FirstIndex = FirstCtrler.dataIndex;
-                var tempBoundy = FirstGo.transform.localPosition.y - FirstCtrler.mBounds.size.y - Interval;
+                var tempBoundy = FirstGo.transform.localPosition.y - FirstCtrler.bounds.size.y - Interval;
                 //Debug.Log(string.Format("{0},{1},{2},{3},{4}", FirstGo.transform.localPosition.y, FirstCtrler.mBounds.size.y, Interval, tempBoundy, FirstIndex));
-                
-                if (FirstIndex < mDataCount-1)
+
+                if (FirstIndex < mDataCount - 1)
                 {
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
@@ -184,7 +194,7 @@ public class Recycle<T> where T : class, IRecycle
                         {
                             ctrler.dataIndex = ++FirstIndex;
                             if (mUpdateItem != null) mUpdateItem(ctrler);
-                            ctrler.mBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
                             go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                             Add2ShowListFrom(ItemsState.Tail, go);
                             Debug.Log(ctrler.dataIndex);
@@ -204,7 +214,7 @@ public class Recycle<T> where T : class, IRecycle
                 T FirstCtrler = null;
                 ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
                 var FirstIndex = FirstCtrler.dataIndex;
-                var tempBoundy = FirstGo.transform.localPosition.y + FirstCtrler.mBounds.size.y + Interval;
+                var tempBoundy = FirstGo.transform.localPosition.y + FirstCtrler.bounds.size.y + Interval;
 
                 if (FirstIndex > 0)
                 {
@@ -216,7 +226,7 @@ public class Recycle<T> where T : class, IRecycle
                         {
                             ctrler.dataIndex = --FirstIndex;
                             if (mUpdateItem != null) mUpdateItem(ctrler);
-                            ctrler.mBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
                             go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                             Add2ShowListFrom(ItemsState.Head, go);
                             Debug.Log(ctrler.dataIndex);
@@ -273,16 +283,15 @@ public class Recycle<T> where T : class, IRecycle
         mPanel.onClipMove += OnClipMove;
         mScrollView.onDragFinished += OnDragFinisehd;
     }
-
+    private void RemoveEvent()
+    {
+        mPanel.onClipMove -= OnClipMove;
+        mScrollView.onDragFinished -= OnDragFinisehd;
+    }
     private void OnDragFinisehd()
     {
         CheckBeyondRemoveToResPool();
     }
 
-    private void RemoveEvent()
-    {
-        mPanel.onClipMove -= OnClipMove;
-
-    }
     #endregion
 }

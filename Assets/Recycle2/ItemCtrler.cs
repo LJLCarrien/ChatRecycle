@@ -16,7 +16,7 @@ public class ItemCtrler : MonoBehaviour,IRecycle
         }
     }
 
-    public Bounds mBounds
+    public Bounds bounds
     {
         get;
 
@@ -34,14 +34,8 @@ public class ItemCtrler : MonoBehaviour,IRecycle
     {
         mLbl.text = i.ToString();
     }
-
-    // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    public void SetDataTwo(string i)
+    {
+        mLbl.text = i;
+    }
 }
