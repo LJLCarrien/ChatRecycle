@@ -3,15 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class tMsg
+public class Msg
 {
-   public int fromWho;
+    public int fromWho;
 }
-public class MsgOne: tMsg
+public class MsgOne : Msg
 {
-    public int contentOne;
+    public string contentOne;
 }
-public class MsgTwo: tMsg
+public class MsgTwo : Msg
 {
     public string contentTwo;
 }
@@ -20,18 +20,18 @@ public class ViewCtrler : MonoBehaviour
     public UIScrollView mScrollView;
     public Recycle<ItemCtrler> mRecycle;
 
-    List<tMsg> dataList = new List<tMsg>();
+    List<Msg> dataList = new List<Msg>();
 
     public void InitData()
     {
         for (int i = 0; i < 10; i++)
         {
-            MsgOne m = new MsgOne {fromWho =1,contentOne=i};            
+            MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
             dataList.Add(m);
         }
         for (int i = 0; i < 10; i++)
         {
-            MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0+i.ToString() };
+            MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
             dataList.Add(m);
         }
     }
@@ -39,76 +39,67 @@ public class ViewCtrler : MonoBehaviour
     void Start()
     {
         InitData();
-        mRecycle = new Recycle<ItemCtrler>(mScrollView,10, AddItem, UpdateItem);
+        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem);
         mRecycle.ResetPostion(dataList.Count);
-
-        //mPanel = mScrollView.panel;
-        //var mCenter = new Vector3(mPanel.finalClipRegion.x, mPanel.finalClipRegion.y, 0);
-        //var mSize = new Vector3(mPanel.finalClipRegion.z, mPanel.finalClipRegion.w);
-        //scrollb = new Bounds(mCenter, mSize);
+        mRecycle.GetDataType = OnGetDataType;
     }
-    //UIPanel mPanel;
-    //public GameObject go;
-    //Bounds b;
-    //Bounds scrollb;
-    //[ContextMenu("bounds")]
-    //public void TestBounds()
-    //{
-    //    go = GameObject.Find("Sprite");
 
-    //    Bounds b = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
-    //    Bounds tempBounds=new Bounds();
-    //    tempBounds = b;
-    //    //tempBounds.center = new Vector3(b.center.x, b.center.y + mScrollView.transform.localPosition.y + go.transform.localPosition.y, b.center.z);
-    //    tempBounds.center +=  mScrollView.transform.localPosition+ go.transform.localPosition;
-
-    //    b = tempBounds;
-
-    //    Debug.LogError(string.Format("{0},{1},{2},{3}", b.center, b.min, b.max, b.size));
-    //    Debug.LogError(string.Format("scrollb:{0},{1},{2},{3}", scrollb.center, scrollb.min, scrollb.max, scrollb.size));
-
-    //    TestInter();
-    //}
-
-    //[ContextMenu("inter")]
-    //public void TestInter()
-    //{
-
-    //    if (scrollb.Intersects(b))
-    //    {
-    //        Debug.LogError("相交");
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("不相交");
-
-    //    }
-
-    //}
-
-    public ItemCtrler AddItem()
+    private int OnGetDataType(int dIndex)
     {
-        var goPrefab = Resources.Load("TypeOne", typeof(GameObject)) as GameObject;
-        GameObject go = NGUITools.AddChild(mScrollView.gameObject, goPrefab);
-        var ctrler = go.AddComponent<ItemCtrler>();
-        return ctrler;
+        int type=-1;
+        if (dataList[dIndex] is MsgOne)
+        {
+            type = (int)ItemCtrler.ItemTypes.itemOne;
+            Debug.Log("一类型");
+
+        }
+        else if (dataList[dIndex] is MsgTwo)
+        {
+            type = (int)ItemCtrler.ItemTypes.itemTwo;
+            Debug.Log("二类型");
+
+        }
+        return type;
+    }
+
+    public ItemCtrler AddItem(int dataIndex)
+    {
+        if (dataIndex >= dataList.Count) return null;
+
+        if (dataList[dataIndex] is MsgOne)
+        {
+            var goPrefab = Resources.Load("TypeOne", typeof(GameObject)) as GameObject;
+            GameObject go = NGUITools.AddChild(mScrollView.gameObject, goPrefab);
+            var ctrler = go.AddComponent<ItemOneCtrler>();
+            ctrler.itemType = (int)ItemCtrler.ItemTypes.itemOne;
+            //Debug.Log("一类型");
+            return ctrler;
+        }
+        else if (dataList[dataIndex]is MsgTwo)
+        {
+            var goPrefab = Resources.Load("TypeTwo", typeof(GameObject)) as GameObject;
+            GameObject go = NGUITools.AddChild(mScrollView.gameObject, goPrefab);
+            var ctrler = go.AddComponent<ItemTwoCtrler>();
+            ctrler.itemType = (int)ItemCtrler.ItemTypes.itemTwo;
+            //Debug.Log("二类型");
+            return ctrler; 
+        }
+        return null;
     }
 
     private void UpdateItem(ItemCtrler ctrler)
     {
         if (ctrler.dataIndex >= dataList.Count) return;
-        tMsg info = dataList[ctrler.dataIndex];
+        Msg info = dataList[ctrler.dataIndex];
         if (info is MsgOne)
         {
             MsgOne mo = info as MsgOne;
-            ctrler.SetData(mo.contentOne);
-
+            ctrler.info = mo;
         }
         else if (info is MsgTwo)
         {
             MsgTwo mt = info as MsgTwo;
-            ctrler.SetDataTwo(mt.contentTwo);
-
+            ctrler.info = mt;
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 #region 数据类型
-public class Msg
+public class Msg1211111111111111111111111111
 {
     public string content;
     public virtual void ShowMsg()
@@ -11,11 +11,11 @@ public class Msg
         Debug.Log(content);
     }
 }
-public class MsgTypeOne : Msg
+public class MsgTypeOne54555555555 : Msg1211111111111111111111111111
 {
     public Color IconColor;
 }
-public class MsgTypeTwo : Msg
+public class MsgTypeTwo6666666666666666 : Msg1211111111111111111111111111
 {
     public Color TypeColor;
 
@@ -41,7 +41,7 @@ public class MsgTypeOneCtrler : IMsgCtrler
         Icon = go.GetComponentInChildren<UISprite>();
         
     }
-    public void InitPrefab(MsgTypeOne msg)
+    public void InitPrefab(MsgTypeOne54555555555 msg)
     {
         lbl.text = msg.content;
         Icon.color = msg.IconColor;
@@ -62,7 +62,7 @@ public class MsgTypeTwoCtrler :  IMsgCtrler
         TypeSp = go.GetComponentInChildren<UISprite>();
 
     }
-    public void InitPrefab(MsgTypeTwo msg)
+    public void InitPrefab(MsgTypeTwo6666666666666666 msg)
     {
         lbl.text = msg.content;
         TypeSp.color = msg.TypeColor;
@@ -72,7 +72,7 @@ public class MsgTypeTwoCtrler :  IMsgCtrler
 
 public class test : MonoBehaviour
 {
-    List<Msg> MsgList = new List<Msg>();
+    List<Msg1211111111111111111111111111> MsgList = new List<Msg1211111111111111111111111111>();
     List<IMsgCtrler> CtrlerList = new List<IMsgCtrler>();
     public int index = 0;
     public UITable ParentGo;
@@ -81,7 +81,7 @@ public class test : MonoBehaviour
     public void InitMsgTypeOne()
     {
         index++;
-        MsgTypeOne msg = new MsgTypeOne();
+        MsgTypeOne54555555555 msg = new MsgTypeOne54555555555();
         msg.content = index.ToString();
         msg.IconColor = Color.red;
         MsgList.Add(msg);
@@ -91,7 +91,7 @@ public class test : MonoBehaviour
     public void InitMsgTypeTwo()
     {
         index++;
-        MsgTypeTwo msg = new MsgTypeTwo();
+        MsgTypeTwo6666666666666666 msg = new MsgTypeTwo6666666666666666();
         msg.content = index.ToString();
         msg.TypeColor = Color.blue;
         MsgList.Add(msg);
@@ -126,37 +126,37 @@ public class test : MonoBehaviour
     [ContextMenu("ShowMsg")]
     public void ShowMsg()
     {
-        Msg msg;
+        Msg1211111111111111111111111111 msg;
         MsgTypeOneCtrler oneCtrler;
         MsgTypeTwoCtrler twoCtrler;
 
         for (int i = 0; i < MsgList.Count; i++)
         {
             msg = MsgList[i];
-            if (msg is MsgTypeOne)
+            if (msg is MsgTypeOne54555555555)
             {
                 oneCtrler = CtrlerList[i] as MsgTypeOneCtrler;
-                oneCtrler.InitPrefab(msg as MsgTypeOne);
+                oneCtrler.InitPrefab(msg as MsgTypeOne54555555555);
             }
-            if (msg is MsgTypeTwo)
+            if (msg is MsgTypeTwo6666666666666666)
             {
                 twoCtrler = CtrlerList[i] as MsgTypeTwoCtrler;
-                twoCtrler.InitPrefab(msg as MsgTypeTwo);
+                twoCtrler.InitPrefab(msg as MsgTypeTwo6666666666666666);
             }
         }
 
 
     }
 
-    public void CreatePfb(Msg msg)
+    public void CreatePfb(Msg1211111111111111111111111111 msg)
     {
-        if (msg is MsgTypeOne)
+        if (msg is MsgTypeOne54555555555)
         {
             MsgTypeOneCtrler ctrler = new MsgTypeOneCtrler();
             ctrler.AddPrefabs(ParentGo.gameObject);
             CtrlerList.Add(ctrler);
         }
-        if (msg is MsgTypeTwo)
+        if (msg is MsgTypeTwo6666666666666666)
         {
             MsgTypeTwoCtrler ctrler = new MsgTypeTwoCtrler();
             ctrler.AddPrefabs(ParentGo.gameObject);

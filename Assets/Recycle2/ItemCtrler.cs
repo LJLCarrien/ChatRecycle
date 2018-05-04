@@ -2,13 +2,13 @@
 using System.Collections;
 using System;
 
-public class ItemCtrler : MonoBehaviour,IRecycle
+public abstract class ItemCtrler : MonoBehaviour,IRecycle
 {
     public GameObject GetGo()
     {
         return this.gameObject;
     }
-    public UILabel mLbl
+    public UILabel lbl
     {
         get
         {
@@ -26,16 +26,30 @@ public class ItemCtrler : MonoBehaviour,IRecycle
     public int dataIndex
     {
         get;
-
+        set;
+    }
+    private Msg mInfo;
+    public Msg info
+    {
+        get { return mInfo; }
+        set
+        {
+            mInfo=value;
+            UpdateItem();
+        }
+    }
+    public enum ItemTypes
+    {
+        itemOne,
+        itemTwo
+    }
+    public int itemType
+    {
+        get;
         set;
     }
 
-    public void SetData(int i)
-    {
-        mLbl.text = i.ToString();
-    }
-    public void SetDataTwo(string i)
-    {
-        mLbl.text = i;
-    }
+    abstract public void UpdateItem();
+    
+
 }

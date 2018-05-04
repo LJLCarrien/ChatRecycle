@@ -8,6 +8,7 @@ public interface IRecycle
     GameObject GetGo();
     Bounds bounds { get; set; }
     int dataIndex { get; set; }
+    int itemType { get; set; }
 }
 public class Recycle<T> where T : class, IRecycle
 {
@@ -16,7 +17,7 @@ public class Recycle<T> where T : class, IRecycle
     public Bounds mPanelBounds { get; private set; }
     public UIScrollView.Movement mMovement { get { return mScrollView.movement; } }
 
-    public Func<T> mAddItem;
+    public Func<int, T> mAddItem;
     public Action<T> mUpdateItem;
 
     public readonly int Interval = 10;//间隔
@@ -30,7 +31,9 @@ public class Recycle<T> where T : class, IRecycle
 
     public int mDataCount { get; private set; }
 
-    public Recycle(UIScrollView sv, int itemInterval, Func<T> AddItem, Action<T> UpdateItem)
+    public Func<int, int> GetDataType;
+
+    public Recycle(UIScrollView sv, int itemInterval, Func<int, T> AddItem, Action<T> UpdateItem)
     {
 
         mScrollView = sv;
@@ -57,8 +60,8 @@ public class Recycle<T> where T : class, IRecycle
         RemoveEvent();
         mScrollView = null;
         mPanel = null;
-        
-        
+
+
     }
 
     public void ResetPostion(int dataCount = 0)
@@ -76,8 +79,9 @@ public class Recycle<T> where T : class, IRecycle
             tempBoundy = mPanelBounds.max.y;
             while (tempBoundy > mPanelBounds.min.y)
             {
-                go = GetItem(ref ctrler); ;
-                ctrler.dataIndex = ++index;
+                ctrler = GetItem(++index);
+                if (ctrler == null) return;
+                go = ctrler.GetGo();
                 if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler);
                 itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);//relactive/Abusoute?
                 ctrler.bounds = itemBounds;
@@ -138,28 +142,37 @@ public class Recycle<T> where T : class, IRecycle
         go.transform.SetParent(mScrollView.transform);
     }
 
-    private GameObject GetItem(ref T ctrler)
+    private T GetItem(int dindex)
     {
-        GameObject go = null;
-        if (mResPool.transform.childCount > 0)
+        int dataType = -1;
+        if (GetDataType != null)
         {
-            go = mResPool.transform.GetChild(0).gameObject;
-            RemoveFromResPool(go);
-            if (ItemGoDic.TryGetValue(go, out ctrler))
-            {
-                Debug.LogError("池里找到了");
-            }
+            dataType = GetDataType(dindex);
+            if (dataType == -1) return null;
         }
-        else
+        T ctrler = null;
+
+        for (int i = 0; i < mResPool.transform.childCount; i++)
         {
-            if (mAddItem != null)
-            {
-                ctrler = mAddItem();
-                go = ctrler.GetGo();
-                ItemGoDic.Add(go, ctrler);
-            }
+            if (mResPool.transform.childCount <= 0) break;
+            var t = mResPool.transform.GetChild(i).gameObject;
+            ctrler = ItemGoDic[t];
+            if (ctrler.itemType != dataType) continue;
+            ctrler.dataIndex = dindex;
+            RemoveFromResPool(t);
+            return ctrler;
         }
-        return go;
+
+        if (mAddItem != null)
+        {
+            ctrler = mAddItem(dindex);
+            if (ctrler == null) return null;
+            ctrler.dataIndex = dindex;
+            var go = ctrler.GetGo();
+            ItemGoDic.Add(go, ctrler);
+        }
+
+        return ctrler;
     }
     #endregion
 
@@ -170,7 +183,7 @@ public class Recycle<T> where T : class, IRecycle
 
         var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
         var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
-        //Debug.LogError(tPanelOffset.x+","+tPanelOffset.y);
+        Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
         if (moveTop)
         {
             //往上拉
@@ -189,15 +202,17 @@ public class Recycle<T> where T : class, IRecycle
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
                         T ctrler = null;
-                        var go = GetItem(ref ctrler);
+                        var index = ++FirstIndex;
+                        ctrler = GetItem(index);
+                        Debug.Log(index);
+
                         if (ctrler != null)
                         {
-                            ctrler.dataIndex = ++FirstIndex;
+                            var go = ctrler.GetGo();
                             if (mUpdateItem != null) mUpdateItem(ctrler);
                             ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
                             go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                             Add2ShowListFrom(ItemsState.Tail, go);
-                            Debug.Log(ctrler.dataIndex);
                         }
                     }
                 }
@@ -221,10 +236,11 @@ public class Recycle<T> where T : class, IRecycle
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
                         T ctrler = null;
-                        var go = GetItem(ref ctrler);
+                        var index = --FirstIndex;
+                        ctrler = GetItem(index);
                         if (ctrler != null)
                         {
-                            ctrler.dataIndex = --FirstIndex;
+                            var go = ctrler.GetGo();
                             if (mUpdateItem != null) mUpdateItem(ctrler);
                             ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
                             go.transform.localPosition = new Vector3(0, tempBoundy, 0);

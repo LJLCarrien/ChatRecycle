@@ -1,15 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ItemOneCtrler : ItemCtrler {
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+public class ItemOneCtrler : ItemCtrler
+{
+    public override void UpdateItem()
+    {
+        MsgOne infoO = info as MsgOne;
+        lbl.text = infoO.contentOne;
+    }
 }
