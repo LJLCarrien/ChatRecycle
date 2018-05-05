@@ -24,15 +24,18 @@ public class ViewCtrler : MonoBehaviour
 
     public void InitData()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 13; i++)
         {
-            MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
-            dataList.Add(m);
-        }
-        for (int i = 0; i < 10; i++)
-        {
-            MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
-            dataList.Add(m);
+            if (i % 2 == 0)
+            {
+                MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
+                dataList.Add(m);
+            }
+            else
+           {
+                MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
+                dataList.Add(m);
+            }
         }
     }
 
@@ -43,20 +46,19 @@ public class ViewCtrler : MonoBehaviour
         mRecycle.ResetPostion(dataList.Count);
         mRecycle.GetDataType = OnGetDataType;
     }
-
     private int OnGetDataType(int dIndex)
     {
-        int type=-1;
+        int type = -1;
         if (dataList[dIndex] is MsgOne)
         {
             type = (int)ItemCtrler.ItemTypes.itemOne;
-            Debug.Log("一类型");
+            //Debug.Log("一类型");
 
         }
         else if (dataList[dIndex] is MsgTwo)
         {
             type = (int)ItemCtrler.ItemTypes.itemTwo;
-            Debug.Log("二类型");
+            //Debug.Log("二类型");
 
         }
         return type;
@@ -75,14 +77,14 @@ public class ViewCtrler : MonoBehaviour
             //Debug.Log("一类型");
             return ctrler;
         }
-        else if (dataList[dataIndex]is MsgTwo)
+        else if (dataList[dataIndex] is MsgTwo)
         {
             var goPrefab = Resources.Load("TypeTwo", typeof(GameObject)) as GameObject;
             GameObject go = NGUITools.AddChild(mScrollView.gameObject, goPrefab);
             var ctrler = go.AddComponent<ItemTwoCtrler>();
             ctrler.itemType = (int)ItemCtrler.ItemTypes.itemTwo;
             //Debug.Log("二类型");
-            return ctrler; 
+            return ctrler;
         }
         return null;
     }

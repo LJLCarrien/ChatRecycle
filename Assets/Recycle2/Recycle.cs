@@ -37,6 +37,7 @@ public class Recycle<T> where T : class, IRecycle
     {
 
         mScrollView = sv;
+        mScrollView.restrictWithinPanel = false;
         mPanel = sv.panel;
         var mCenter = new Vector3(mPanel.finalClipRegion.x, mPanel.finalClipRegion.y, 0);
         var mSize = new Vector3(mPanel.finalClipRegion.z, mPanel.finalClipRegion.w);
@@ -86,8 +87,11 @@ public class Recycle<T> where T : class, IRecycle
                 itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);//relactive/Abusoute?
                 ctrler.bounds = itemBounds;
                 go.transform.localPosition = new Vector3(0, tempBoundy, 0);
+                //Debug.Log(tempBoundy);
+
                 tempBoundy = tempBoundy - itemBounds.size.y - Interval;
                 Add2ShowListFrom(ItemsState.Tail, go);
+
                 //Debug.Log(string.Format("{0},{1},{2},{3},{4}", go.transform.localPosition, ctrler.mBounds.size.y, Interval, tempBoundy, ctrler.dataIndex));
 
             }
@@ -183,7 +187,7 @@ public class Recycle<T> where T : class, IRecycle
 
         var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
         var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
-        Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
+        //Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
         if (moveTop)
         {
             //往上拉
@@ -194,7 +198,6 @@ public class Recycle<T> where T : class, IRecycle
                 T FirstCtrler = null;
                 ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
                 var FirstIndex = FirstCtrler.dataIndex;
-                var tempBoundy = FirstGo.transform.localPosition.y - FirstCtrler.bounds.size.y - Interval;
                 //Debug.Log(string.Format("{0},{1},{2},{3},{4}", FirstGo.transform.localPosition.y, FirstCtrler.mBounds.size.y, Interval, tempBoundy, FirstIndex));
 
                 if (FirstIndex < mDataCount - 1)
@@ -204,17 +207,27 @@ public class Recycle<T> where T : class, IRecycle
                         T ctrler = null;
                         var index = ++FirstIndex;
                         ctrler = GetItem(index);
-                        Debug.Log(index);
+                        //Debug.Log(index);
 
                         if (ctrler != null)
                         {
                             var go = ctrler.GetGo();
                             if (mUpdateItem != null) mUpdateItem(ctrler);
                             ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            var tempBoundy = FirstGo.transform.localPosition.y - FirstCtrler.bounds.size.y - Interval;
                             go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                             Add2ShowListFrom(ItemsState.Tail, go);
+                            //Debug.Log(tempBoundy);
                         }
                     }
+                }
+
+                //删除
+                bool isLastData = FirstCtrler.dataIndex == mDataCount - 1;
+                if (mScrollView.isDragging && !isLastData)
+                {
+                    Debug.Log("移删");
+                    CheckBeyondRemoveToResPool();
                 }
             }
 
@@ -229,7 +242,6 @@ public class Recycle<T> where T : class, IRecycle
                 T FirstCtrler = null;
                 ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
                 var FirstIndex = FirstCtrler.dataIndex;
-                var tempBoundy = FirstGo.transform.localPosition.y + FirstCtrler.bounds.size.y + Interval;
 
                 if (FirstIndex > 0)
                 {
@@ -243,11 +255,20 @@ public class Recycle<T> where T : class, IRecycle
                             var go = ctrler.GetGo();
                             if (mUpdateItem != null) mUpdateItem(ctrler);
                             ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            var tempBoundy = FirstGo.transform.localPosition.y + Interval + ctrler.bounds.size.y;
                             go.transform.localPosition = new Vector3(0, tempBoundy, 0);
                             Add2ShowListFrom(ItemsState.Head, go);
-                            Debug.Log(ctrler.dataIndex);
+                            //Debug.Log(ctrler.dataIndex);
                         }
                     }
+                }
+                //删除
+                bool isFirstData = FirstCtrler.dataIndex == 0;
+                if (mScrollView.isDragging && !isFirstData)
+                {
+                    Debug.Log("移删");
+
+                    CheckBeyondRemoveToResPool();
                 }
             }
         }
@@ -266,8 +287,10 @@ public class Recycle<T> where T : class, IRecycle
 
         return tempBounds;
     }
+
+
     //检测超出移到资源池
-    private void CheckBeyondRemoveToResPool()
+    private void CheckBeyondRemoveToResPool(Action mFinishRemoveToResPool = null)
     {
         int showCount = showItemGoLinkList.Count;
         T ctrler = null;
@@ -290,23 +313,82 @@ public class Recycle<T> where T : class, IRecycle
                     AddToResPool(go);
                 }
             }
+            if (i == tmpList.Length - 1 && mFinishRemoveToResPool != null)
+            {
+                mFinishRemoveToResPool();
+            }
         }
     }
 
     #region 事件
-    private void RegisterEvent()
-    {
-        mPanel.onClipMove += OnClipMove;
-        mScrollView.onDragFinished += OnDragFinisehd;
-    }
     private void RemoveEvent()
     {
         mPanel.onClipMove -= OnClipMove;
-        mScrollView.onDragFinished -= OnDragFinisehd;
+        mScrollView.onMomentumMove -= OnStoppedMoving;
+        mScrollView.onDragStarted -= OnDragStarted;
+
     }
-    private void OnDragFinisehd()
+
+    private void RegisterEvent()
     {
-        CheckBeyondRemoveToResPool();
+        mPanel.onClipMove += OnClipMove;
+        mScrollView.onStoppedMoving += OnStoppedMoving;
+        mScrollView.onDragStarted += OnDragStarted;
+        mScrollView.onDragFinished += OnDragFinished;
+
+    }
+
+
+
+
+
+
+    private void OnDragStarted()
+    {
+        //mScrollView.DisableSpring();
+    }
+
+    private void OnDragFinished()
+    {
+
+        if (showItemGoLinkList.Count <= 0) return;
+
+
+        var firstGo = showItemGoLinkList.First.Value;
+        var lastGo = showItemGoLinkList.Last.Value;
+
+        var firstCtrler = ItemGoDic[firstGo];
+        var lastCtrler = ItemGoDic[lastGo];
+
+        var pos = Vector3.zero;
+
+        //触顶
+        if (firstCtrler.dataIndex == 0)
+        {
+            //if (mMovement == UIScrollView.Movement.Vertical)
+            //    pos = new Vector3(0, Mathf.Abs(mScrollView.panel.clipSoftness.y), 0);
+            pos = Vector3.zero;
+        }
+        //触底
+        else if (ItemGoDic[lastGo].dataIndex == mDataCount - 1)
+        {
+            
+            //todo:
+            //pos= mScrollView.transform.localPosition + new Vector3(b.x,Mathf.Abs(b.y),b.z);
+            //pos = b;
+            pos.x = Mathf.Round(pos.x);
+            pos.y = Mathf.Round(pos.y);
+        }
+        SpringPanel.Begin(mPanel.gameObject, pos, 8f);
+
+
+
+
+    }
+    private void OnStoppedMoving()
+    {
+        //CheckBeyondRemoveToResPool();
+
     }
 
     #endregion
