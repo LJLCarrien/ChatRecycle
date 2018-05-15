@@ -18,7 +18,7 @@ public class MsgTwo : Msg
 public class ViewCtrler : MonoBehaviour
 {
     public UIScrollView mScrollView;
-    public Recycle<ItemCtrler> mRecycle;
+    public Recycle mRecycle;
 
     List<Msg> dataList = new List<Msg>();
 
@@ -26,43 +26,45 @@ public class ViewCtrler : MonoBehaviour
     {
         for (int i = 0; i < 13; i++)
         {
-            if (i % 2 == 0)
-            {
-                MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
-                dataList.Add(m);
-            }
-            else
-           {
-                MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
-                dataList.Add(m);
-            }
+            MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
+            dataList.Add(m);
+            // if (i % 2 == 0)
+            // {
+            //     MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
+            //     dataList.Add(m);
+            // }
+            // else
+            //{
+            //     MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
+            //     dataList.Add(m);
+            // }
         }
     }
 
     void Start()
     {
         InitData();
-        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem);
+        mRecycle = new Recycle(mScrollView, 10, AddItem, UpdateItem);
         mRecycle.ResetPostion(dataList.Count);
-        mRecycle.GetDataType = OnGetDataType;
+        //mRecycle.GetDataType = OnGetDataType;
     }
-    private int OnGetDataType(int dIndex)
-    {
-        int type = -1;
-        if (dataList[dIndex] is MsgOne)
-        {
-            type = (int)ItemCtrler.ItemTypes.itemOne;
-            //Debug.Log("一类型");
+    //private int OnGetDataType(int dIndex)
+    //{
+    //    int type = -1;
+    //    if (dataList[dIndex] is MsgOne)
+    //    {
+    //        type = (int)ItemCtrler.ItemTypes.itemOne;
+    //        //Debug.Log("一类型");
 
-        }
-        else if (dataList[dIndex] is MsgTwo)
-        {
-            type = (int)ItemCtrler.ItemTypes.itemTwo;
-            //Debug.Log("二类型");
+    //    }
+    //    else if (dataList[dIndex] is MsgTwo)
+    //    {
+    //        type = (int)ItemCtrler.ItemTypes.itemTwo;
+    //        //Debug.Log("二类型");
 
-        }
-        return type;
-    }
+    //    }
+    //    return type;
+    //}
 
     public ItemCtrler AddItem(int dataIndex)
     {
@@ -89,19 +91,20 @@ public class ViewCtrler : MonoBehaviour
         return null;
     }
 
-    private void UpdateItem(ItemCtrler ctrler)
+    private void UpdateItem(IRecycle ctrler)
     {
         if (ctrler.dataIndex >= dataList.Count) return;
         Msg info = dataList[ctrler.dataIndex];
+        var itemCtrler = (ItemCtrler)ctrler;
         if (info is MsgOne)
         {
             MsgOne mo = info as MsgOne;
-            ctrler.info = mo;
+            itemCtrler.info = mo;
         }
         else if (info is MsgTwo)
         {
             MsgTwo mt = info as MsgTwo;
-            ctrler.info = mt;
+            itemCtrler.info = mt;
         }
     }
 }

@@ -10,15 +10,15 @@ public interface IRecycle
     int dataIndex { get; set; }
     int itemType { get; set; }
 }
-public class Recycle<T> where T : class, IRecycle
+public class Recycle
 {
     public UIScrollView mScrollView { get; private set; }
     public UIPanel mPanel { get; private set; }
     public Bounds mPanelBounds { get; private set; }
     public UIScrollView.Movement mMovement { get { return mScrollView.movement; } }
 
-    public Func<int, T> mAddItem;
-    public Action<T> mUpdateItem;
+    public Func<int, IRecycle> mAddItem;
+    public Action<IRecycle> mUpdateItem;
 
     public readonly int Interval = 10;//间隔
 
@@ -26,14 +26,14 @@ public class Recycle<T> where T : class, IRecycle
     public LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
 
     private GameObject mResPool;
-    public Dictionary<GameObject, T> ItemGoDic = new Dictionary<GameObject, T>();
+    public Dictionary<GameObject, IRecycle> ItemGoDic = new Dictionary<GameObject, IRecycle>();
 
 
     public int mDataCount { get; private set; }
 
     public Func<int, int> GetDataType;
 
-    public Recycle(UIScrollView sv, int itemInterval, Func<int, T> AddItem, Action<T> UpdateItem)
+    public Recycle(UIScrollView sv, int itemInterval, Func<int, IRecycle> AddItem, Action<IRecycle> UpdateItem)
     {
 
         mScrollView = sv;
@@ -67,7 +67,7 @@ public class Recycle<T> where T : class, IRecycle
 
     public void ResetPostion(int dataCount = 0)
     {
-        T ctrler = null;
+        IRecycle ctrler= default(IRecycle);
         GameObject go = null;
 
         Bounds itemBounds;
@@ -146,15 +146,15 @@ public class Recycle<T> where T : class, IRecycle
         go.transform.SetParent(mScrollView.transform);
     }
 
-    private T GetItem(int dindex)
+    private IRecycle GetItem(int dindex)
     {
         int dataType = -1;
-        T ctrler = null;
+        IRecycle ctrler= default(IRecycle);
 
         if (GetDataType != null)
         {
             dataType = GetDataType(dindex);
-            if (dataType == -1) return null;
+            if (dataType == -1) return default(IRecycle);
             for (int i = 0; i < mResPool.transform.childCount; i++)
             {
                 if (mResPool.transform.childCount <= 0) break;
@@ -205,7 +205,7 @@ public class Recycle<T> where T : class, IRecycle
             if (showItemGoLinkList.Count > 0)
             {
                 var FirstGo = showItemGoLinkList.Last.Value;//最后一个
-                T FirstCtrler = null;
+                IRecycle FirstCtrler = null;
                 ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
                 var FirstIndex = FirstCtrler.dataIndex;
                 //Debug.Log(string.Format("{0},{1},{2},{3},{4}", FirstGo.transform.localPosition.y, FirstCtrler.mBounds.size.y, Interval, tempBoundy, FirstIndex));
@@ -214,7 +214,7 @@ public class Recycle<T> where T : class, IRecycle
                 {
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
-                        T ctrler = null;
+                        IRecycle ctrler = null;
                         var index = ++FirstIndex;
                         ctrler = GetItem(index);
                         //Debug.Log(index);
@@ -236,7 +236,7 @@ public class Recycle<T> where T : class, IRecycle
                 bool isLastData = FirstCtrler.dataIndex == mDataCount - 1;
                 if (mScrollView.isDragging && !isLastData)
                 {
-                    Debug.Log("移删");
+                    //Debug.Log("移删");
                     CheckBeyondRemoveToResPool();
                 }
             }
@@ -249,7 +249,7 @@ public class Recycle<T> where T : class, IRecycle
             if (showItemGoLinkList.Count > 0)
             {
                 var FirstGo = showItemGoLinkList.First.Value;//第一个
-                T FirstCtrler = null;
+                IRecycle FirstCtrler = null;
                 ItemGoDic.TryGetValue(FirstGo, out FirstCtrler);
                 var FirstIndex = FirstCtrler.dataIndex;
 
@@ -257,7 +257,7 @@ public class Recycle<T> where T : class, IRecycle
                 {
                     if (mMovement == UIScrollView.Movement.Vertical)
                     {
-                        T ctrler = null;
+                        IRecycle ctrler = null;
                         var index = --FirstIndex;
                         ctrler = GetItem(index);
                         if (ctrler != null)
@@ -284,7 +284,7 @@ public class Recycle<T> where T : class, IRecycle
         }
     }
 
-    private Bounds GetItemRealBounds(T ctrler)
+    private Bounds GetItemRealBounds(IRecycle ctrler)
     {
         Bounds itemBounds;
         GameObject go = ctrler.GetGo();
@@ -303,7 +303,7 @@ public class Recycle<T> where T : class, IRecycle
     private void CheckBeyondRemoveToResPool(Action mFinishRemoveToResPool = null)
     {
         int showCount = showItemGoLinkList.Count;
-        T ctrler = null;
+        IRecycle ctrler = null;
         Bounds b;
         GameObject go;
         GameObject[] tmpList = new GameObject[showCount];
@@ -347,12 +347,7 @@ public class Recycle<T> where T : class, IRecycle
         mScrollView.onDragFinished += OnDragFinished;
 
     }
-
-
-
-
-
-
+    
     private void OnDragStarted()
     {
         //mScrollView.DisableSpring();
@@ -377,8 +372,6 @@ public class Recycle<T> where T : class, IRecycle
         //触顶
         if (firstCtrler.dataIndex == 0)
         {
-            //if (mMovement == UIScrollView.Movement.Vertical)
-            //    pos = new Vector3(0, Mathf.Abs(mScrollView.panel.clipSoftness.y), 0);
             pos = Vector3.zero;
             SpringPanel.Begin(mPanel.gameObject, pos, 8f);
 
@@ -396,10 +389,6 @@ public class Recycle<T> where T : class, IRecycle
             Debug.LogError("触底");
 
         }
-
-
-
-
     }
     private void OnStoppedMoving()
     {
