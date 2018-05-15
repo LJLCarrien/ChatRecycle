@@ -368,18 +368,20 @@ public class Recycle<T> where T : class, IRecycle
             //if (mMovement == UIScrollView.Movement.Vertical)
             //    pos = new Vector3(0, Mathf.Abs(mScrollView.panel.clipSoftness.y), 0);
             pos = Vector3.zero;
+            SpringPanel.Begin(mPanel.gameObject, pos, 8f);
+
         }
         //触底
         else if (ItemGoDic[lastGo].dataIndex == mDataCount - 1)
         {
-            
-            //todo:
-            //pos= mScrollView.transform.localPosition + new Vector3(b.x,Mathf.Abs(b.y),b.z);
-            //pos = b;
-            pos.x = Mathf.Round(pos.x);
-            pos.y = Mathf.Round(pos.y);
+            var scrollViewBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
+            var tPanelOffset = mPanel.CalculateConstrainOffset(scrollViewBounds.min, scrollViewBounds.max);
+ 
+            var offsetMove = mPanel.transform.localPosition.y - Mathf.Abs(tPanelOffset.y);
+            var vLast = new Vector3(mPanel.transform.localPosition.x,offsetMove,mPanel.transform.localPosition.z);
+            SpringPanel.Begin(mPanel.gameObject, vLast, 8f);
+
         }
-        SpringPanel.Begin(mPanel.gameObject, pos, 8f);
 
 
 
