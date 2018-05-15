@@ -149,24 +149,34 @@ public class Recycle<T> where T : class, IRecycle
     private T GetItem(int dindex)
     {
         int dataType = -1;
+        T ctrler = null;
+
         if (GetDataType != null)
         {
             dataType = GetDataType(dindex);
             if (dataType == -1) return null;
+            for (int i = 0; i < mResPool.transform.childCount; i++)
+            {
+                if (mResPool.transform.childCount <= 0) break;
+                var t = mResPool.transform.GetChild(i).gameObject;
+                ctrler = ItemGoDic[t];
+                if (ctrler.itemType != dataType) continue;
+                ctrler.dataIndex = dindex;
+                RemoveFromResPool(t);
+                return ctrler;
+            }
         }
-        T ctrler = null;
-
-        for (int i = 0; i < mResPool.transform.childCount; i++)
+        else
         {
-            if (mResPool.transform.childCount <= 0) break;
-            var t = mResPool.transform.GetChild(i).gameObject;
-            ctrler = ItemGoDic[t];
-            if (ctrler.itemType != dataType) continue;
-            ctrler.dataIndex = dindex;
-            RemoveFromResPool(t);
-            return ctrler;
+            if (mResPool.transform.childCount > 0)
+            {
+                var t = mResPool.transform.GetChild(0).gameObject;
+                ctrler = ItemGoDic[t];
+                ctrler.dataIndex = dindex;
+                RemoveFromResPool(t);
+                return ctrler;
+            }
         }
-
         if (mAddItem != null)
         {
             ctrler = mAddItem(dindex);
@@ -266,7 +276,7 @@ public class Recycle<T> where T : class, IRecycle
                 bool isFirstData = FirstCtrler.dataIndex == 0;
                 if (mScrollView.isDragging && !isFirstData)
                 {
-                    Debug.Log("移删");
+                    //Debug.Log("移删");
 
                     CheckBeyondRemoveToResPool();
                 }
@@ -361,6 +371,8 @@ public class Recycle<T> where T : class, IRecycle
         var lastCtrler = ItemGoDic[lastGo];
 
         var pos = Vector3.zero;
+        Debug.LogError(string.Format("first:" + firstCtrler.dataIndex));
+        Debug.LogError(string.Format("last:" + lastCtrler.dataIndex));
 
         //触顶
         if (firstCtrler.dataIndex == 0)
@@ -370,16 +382,18 @@ public class Recycle<T> where T : class, IRecycle
             pos = Vector3.zero;
             SpringPanel.Begin(mPanel.gameObject, pos, 8f);
 
+            Debug.LogError("顶部");
         }
         //触底
-        else if (ItemGoDic[lastGo].dataIndex == mDataCount - 1)
+        else if (lastCtrler.dataIndex == mDataCount - 1)
         {
             var scrollViewBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
             var tPanelOffset = mPanel.CalculateConstrainOffset(scrollViewBounds.min, scrollViewBounds.max);
- 
+
             var offsetMove = mPanel.transform.localPosition.y - Mathf.Abs(tPanelOffset.y);
-            var vLast = new Vector3(mPanel.transform.localPosition.x,offsetMove,mPanel.transform.localPosition.z);
+            var vLast = new Vector3(mPanel.transform.localPosition.x, offsetMove, mPanel.transform.localPosition.z);
             SpringPanel.Begin(mPanel.gameObject, vLast, 8f);
+            Debug.LogError("触底");
 
         }
 
