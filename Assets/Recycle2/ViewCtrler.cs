@@ -26,18 +26,18 @@ public class ViewCtrler : MonoBehaviour
     {
         for (int i = 0; i < 13; i++)
         {
-            MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
-            dataList.Add(m);
-            // if (i % 2 == 0)
-            // {
-            //     MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
-            //     dataList.Add(m);
-            // }
-            // else
-            //{
-            //     MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
-            //     dataList.Add(m);
-            // }
+            //MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
+            //dataList.Add(m);
+            if (i % 2 == 0)
+            {
+                MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
+                dataList.Add(m);
+            }
+            else
+            {
+                MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
+                dataList.Add(m);
+            }
         }
     }
 
@@ -46,25 +46,25 @@ public class ViewCtrler : MonoBehaviour
         InitData();
         mRecycle = new Recycle(mScrollView, 10, AddItem, UpdateItem);
         mRecycle.ResetPostion(dataList.Count);
-        //mRecycle.GetDataType = OnGetDataType;
+        mRecycle.GetDataType = OnGetDataType;
     }
-    //private int OnGetDataType(int dIndex)
-    //{
-    //    int type = -1;
-    //    if (dataList[dIndex] is MsgOne)
-    //    {
-    //        type = (int)ItemCtrler.ItemTypes.itemOne;
-    //        //Debug.Log("一类型");
+    private int OnGetDataType(int dIndex)
+    {
+        int type = -1;
+        if (dataList[dIndex] is MsgOne)
+        {
+            type = (int)ItemCtrler.ItemTypes.itemOne;
+            //Debug.Log("一类型");
 
-    //    }
-    //    else if (dataList[dIndex] is MsgTwo)
-    //    {
-    //        type = (int)ItemCtrler.ItemTypes.itemTwo;
-    //        //Debug.Log("二类型");
+        }
+        else if (dataList[dIndex] is MsgTwo)
+        {
+            type = (int)ItemCtrler.ItemTypes.itemTwo;
+            //Debug.Log("二类型");
 
-    //    }
-    //    return type;
-    //}
+        }
+        return type;
+    }
 
     public ItemCtrler AddItem(int dataIndex)
     {

@@ -12,27 +12,23 @@ public interface IRecycle
 }
 public class Recycle
 {
+    public readonly int Interval = 10;//间隔
+
     public UIScrollView mScrollView { get; private set; }
     public UIPanel mPanel { get; private set; }
     public Bounds mPanelBounds { get; private set; }
     public UIScrollView.Movement mMovement { get { return mScrollView.movement; } }
+    public int mDataCount { get; private set; }
 
     public Func<int, IRecycle> mAddItem;
     public Action<IRecycle> mUpdateItem;
+    public Func<int, int> GetDataType;
 
-    public readonly int Interval = 10;//间隔
-
-    //展示中的
     public LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
-
     private GameObject mResPool;
     public Dictionary<GameObject, IRecycle> ItemGoDic = new Dictionary<GameObject, IRecycle>();
 
-
-    public int mDataCount { get; private set; }
-
-    public Func<int, int> GetDataType;
-
+    #region 外部调用
     public Recycle(UIScrollView sv, int itemInterval, Func<int, IRecycle> AddItem, Action<IRecycle> UpdateItem)
     {
 
@@ -67,7 +63,7 @@ public class Recycle
 
     public void ResetPostion(int dataCount = 0)
     {
-        IRecycle ctrler= default(IRecycle);
+        IRecycle ctrler = default(IRecycle);
         GameObject go = null;
 
         Bounds itemBounds;
@@ -98,6 +94,8 @@ public class Recycle
         }
 
     }
+    #endregion
+
     #region 辅助
 
     public enum ItemsState
@@ -115,7 +113,6 @@ public class Recycle
 
         //Debug.LogError(showItemGoLinkList.Count);
     }
-
     public void RemoveShowListFrom(ItemsState state)
     {
         if (showItemGoLinkList.Count <= 0) return;
@@ -149,7 +146,7 @@ public class Recycle
     private IRecycle GetItem(int dindex)
     {
         int dataType = -1;
-        IRecycle ctrler= default(IRecycle);
+        IRecycle ctrler = default(IRecycle);
 
         if (GetDataType != null)
         {
@@ -188,15 +185,33 @@ public class Recycle
 
         return ctrler;
     }
+    private Bounds GetItemRealBounds(IRecycle ctrler)
+    {
+        Bounds itemBounds;
+        GameObject go = ctrler.GetGo();
+        itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+        //Debug.LogError(string.Format("前：{0},{1},{2},{3}", itemBounds.center, itemBounds.min, itemBounds.max, itemBounds.size));
+
+        Bounds tempBounds = new Bounds();
+        tempBounds = itemBounds;
+        tempBounds.center += mScrollView.transform.localPosition + go.transform.localPosition;
+
+        return tempBounds;
+    }
+
     #endregion
+
+    #region 核心逻辑
+    private bool moveTop;
+    private bool moveDown;
 
     private void OnClipMove(UIPanel panel)
     {
         var scrollViewBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
         var tPanelOffset = panel.CalculateConstrainOffset(scrollViewBounds.min, scrollViewBounds.max);
 
-        var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
-        var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
+        moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
+        moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
         //Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
         if (moveTop)
         {
@@ -234,10 +249,22 @@ public class Recycle
 
                 //删除
                 bool isLastData = FirstCtrler.dataIndex == mDataCount - 1;
-                if (mScrollView.isDragging && !isLastData)
+                if (mScrollView.isDragging)
                 {
-                    //Debug.Log("移删");
-                    CheckBeyondRemoveToResPool();
+                    mScrollView.DisableSpring();
+                    if (!isLastData)
+                        CheckBeyondRemoveToResPool();
+                }
+                else
+                {
+                    if (isLastData)
+                    {
+                        RestrictInPanel();
+                    }
+                    else
+                    {
+                        CheckBeyondRemoveToResPool();
+                    }
                 }
             }
 
@@ -274,34 +301,31 @@ public class Recycle
                 }
                 //删除
                 bool isFirstData = FirstCtrler.dataIndex == 0;
-                if (mScrollView.isDragging && !isFirstData)
+                if (mScrollView.isDragging)
                 {
-                    //Debug.Log("移删");
-
-                    CheckBeyondRemoveToResPool();
+                    mScrollView.DisableSpring();
+                    if (!isFirstData)
+                        CheckBeyondRemoveToResPool();
+                }
+                else
+                {
+                    if (isFirstData)
+                    {
+                        RestrictInPanel();
+                    }
+                    else
+                    {
+                        CheckBeyondRemoveToResPool();
+                    }
                 }
             }
         }
     }
 
-    private Bounds GetItemRealBounds(IRecycle ctrler)
-    {
-        Bounds itemBounds;
-        GameObject go = ctrler.GetGo();
-        itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
-        //Debug.LogError(string.Format("前：{0},{1},{2},{3}", itemBounds.center, itemBounds.min, itemBounds.max, itemBounds.size));
-
-        Bounds tempBounds = new Bounds();
-        tempBounds = itemBounds;
-        tempBounds.center += mScrollView.transform.localPosition + go.transform.localPosition;
-
-        return tempBounds;
-    }
-
-
     //检测超出移到资源池
     private void CheckBeyondRemoveToResPool(Action mFinishRemoveToResPool = null)
     {
+        //Debug.Log("移删");
         int showCount = showItemGoLinkList.Count;
         IRecycle ctrler = null;
         Bounds b;
@@ -330,32 +354,10 @@ public class Recycle
         }
     }
 
-    #region 事件
-    private void RemoveEvent()
+    //限制显示在Panel区域内
+    private void RestrictInPanel()
     {
-        mPanel.onClipMove -= OnClipMove;
-        mScrollView.onMomentumMove -= OnStoppedMoving;
-        mScrollView.onDragStarted -= OnDragStarted;
-
-    }
-
-    private void RegisterEvent()
-    {
-        mPanel.onClipMove += OnClipMove;
-        mScrollView.onStoppedMoving += OnStoppedMoving;
-        mScrollView.onDragStarted += OnDragStarted;
-        mScrollView.onDragFinished += OnDragFinished;
-
-    }
-    
-    private void OnDragStarted()
-    {
-        //mScrollView.DisableSpring();
-    }
-
-    private void OnDragFinished()
-    {
-
+        Debug.LogError("归位");
         if (showItemGoLinkList.Count <= 0) return;
 
 
@@ -366,11 +368,11 @@ public class Recycle
         var lastCtrler = ItemGoDic[lastGo];
 
         var pos = Vector3.zero;
-        Debug.LogError(string.Format("first:" + firstCtrler.dataIndex));
-        Debug.LogError(string.Format("last:" + lastCtrler.dataIndex));
+        //Debug.LogError(string.Format("first:" + firstCtrler.dataIndex));
+        //Debug.LogError(string.Format("last:" + lastCtrler.dataIndex));
 
         //触顶
-        if (firstCtrler.dataIndex == 0)
+        if (firstCtrler.dataIndex == 0 && moveDown)
         {
             pos = Vector3.zero;
             SpringPanel.Begin(mPanel.gameObject, pos, 8f);
@@ -378,7 +380,7 @@ public class Recycle
             Debug.LogError("顶部");
         }
         //触底
-        else if (lastCtrler.dataIndex == mDataCount - 1)
+        else if (lastCtrler.dataIndex == mDataCount - 1 && moveTop)
         {
             var scrollViewBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
             var tPanelOffset = mPanel.CalculateConstrainOffset(scrollViewBounds.min, scrollViewBounds.max);
@@ -390,10 +392,41 @@ public class Recycle
 
         }
     }
+
+    #endregion
+
+    #region 事件
+
+    private void RegisterEvent()
+    {
+        mPanel.onClipMove += OnClipMove;
+        mScrollView.onStoppedMoving += OnStoppedMoving;
+        mScrollView.onDragStarted += OnDragStarted;
+        mScrollView.onDragFinished += OnDragFinished;
+
+    }
+    private void RemoveEvent()
+    {
+        mPanel.onClipMove -= OnClipMove;
+        mScrollView.onMomentumMove -= OnStoppedMoving;
+        mScrollView.onDragStarted -= OnDragStarted;
+        mScrollView.onDragFinished -= OnDragFinished;
+
+    }
+    
     private void OnStoppedMoving()
     {
         //CheckBeyondRemoveToResPool();
 
+    }
+    private void OnDragStarted()
+    {
+        //mScrollView.DisableSpring();
+    }
+    private void OnDragFinished()
+    {
+
+        //RestrictInPanel();
     }
 
     #endregion
