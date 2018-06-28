@@ -18,23 +18,21 @@ public class MsgTwo : Msg
 public class ViewCtrler : MonoBehaviour
 {
     public UIScrollView mScrollView;
-    public Recycle mRecycle;
+    public Recycle<ItemCtrler> mRecycle;
 
     List<Msg> dataList = new List<Msg>();
 
     public void InitData()
     {
-        for (int i = 0; i < 13; i++)
+        for (int i = 0; i < 23; i++)
         {
-            //MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
-            //dataList.Add(m);
             if (i % 2 == 0)
             {
                 MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
                 dataList.Add(m);
             }
             else
-            {
+           {
                 MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
                 dataList.Add(m);
             }
@@ -44,7 +42,7 @@ public class ViewCtrler : MonoBehaviour
     void Start()
     {
         InitData();
-        mRecycle = new Recycle(mScrollView, 10, AddItem, UpdateItem);
+        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem);
         mRecycle.ResetPostion(dataList.Count);
         mRecycle.GetDataType = OnGetDataType;
     }
@@ -91,20 +89,19 @@ public class ViewCtrler : MonoBehaviour
         return null;
     }
 
-    private void UpdateItem(IRecycle ctrler)
+    private void UpdateItem(ItemCtrler ctrler)
     {
         if (ctrler.dataIndex >= dataList.Count) return;
         Msg info = dataList[ctrler.dataIndex];
-        var itemCtrler = (ItemCtrler)ctrler;
         if (info is MsgOne)
         {
             MsgOne mo = info as MsgOne;
-            itemCtrler.info = mo;
+            ctrler.info = mo;
         }
         else if (info is MsgTwo)
         {
             MsgTwo mt = info as MsgTwo;
-            itemCtrler.info = mt;
+            ctrler.info = mt;
         }
     }
 }
