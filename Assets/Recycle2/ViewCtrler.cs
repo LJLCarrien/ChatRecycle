@@ -21,9 +21,12 @@ public class ViewCtrler : MonoBehaviour
     public Recycle<ItemCtrler> mRecycle;
 
     List<Msg> dataList = new List<Msg>();
+    //dataIndex,Height
+    Dictionary<int, int> SpecialHeightDic = new Dictionary<int, int>();
 
     public void InitData()
     {
+        SpecialHeightDic.Clear();
         for (int i = 0; i < 23; i++)
         {
             if (i % 2 == 0)
@@ -32,7 +35,7 @@ public class ViewCtrler : MonoBehaviour
                 dataList.Add(m);
             }
             else
-           {
+            {
                 MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
                 dataList.Add(m);
             }
@@ -63,6 +66,7 @@ public class ViewCtrler : MonoBehaviour
         }
         return type;
     }
+    List<ItemCtrler> ctrlerList = new List<ItemCtrler>();
 
     public ItemCtrler AddItem(int dataIndex)
     {
@@ -74,6 +78,7 @@ public class ViewCtrler : MonoBehaviour
             GameObject go = NGUITools.AddChild(mScrollView.gameObject, goPrefab);
             var ctrler = go.AddComponent<ItemOneCtrler>();
             ctrler.itemType = (int)ItemCtrler.ItemTypes.itemOne;
+            ctrlerList.Add(ctrler);
             //Debug.Log("一类型");
             return ctrler;
         }
@@ -83,25 +88,72 @@ public class ViewCtrler : MonoBehaviour
             GameObject go = NGUITools.AddChild(mScrollView.gameObject, goPrefab);
             var ctrler = go.AddComponent<ItemTwoCtrler>();
             ctrler.itemType = (int)ItemCtrler.ItemTypes.itemTwo;
+            ctrlerList.Add(ctrler);
             //Debug.Log("二类型");
             return ctrler;
         }
         return null;
     }
 
-    private void UpdateItem(ItemCtrler ctrler)
+    private void UpdateItem(ItemCtrler ctrler, int dataIndex)
     {
-        if (ctrler.dataIndex >= dataList.Count) return;
-        Msg info = dataList[ctrler.dataIndex];
+        var newHeight = 0;
+        if (dataIndex >= dataList.Count) return;
+        Msg info = dataList[dataIndex];
+
         if (info is MsgOne)
         {
             MsgOne mo = info as MsgOne;
             ctrler.info = mo;
+            ctrler.UpdateItem();
+
+            if (SpecialHeightDic.TryGetValue(dataIndex, out newHeight))
+                ctrler.UpdateHeight(newHeight);
+            else
+                ctrler.UpdateHeight();
+
         }
         else if (info is MsgTwo)
         {
             MsgTwo mt = info as MsgTwo;
             ctrler.info = mt;
+            ctrler.UpdateItem();
+            if (SpecialHeightDic.TryGetValue(dataIndex, out newHeight))
+                ctrler.UpdateHeight(newHeight);
+            else
+                ctrler.UpdateHeight();
+
         }
+    }
+    public int changIndex = 0;
+
+    [ContextMenu("Move")]
+    public void ResetPos()
+    {
+        mRecycle.MoveItemByIndex(changIndex);
+    }
+    [ContextMenu("SetHeight")]
+
+    public void SetHeight()
+    {
+        var newHeight = 30;
+        ctrlerList[changIndex].UpdateHeight(newHeight);
+        if (SpecialHeightDic.ContainsKey(changIndex))
+        {
+            SpecialHeightDic[changIndex] = newHeight;
+        }
+        else
+        {
+            SpecialHeightDic.Add(changIndex, newHeight);
+        }
+    }
+    [ContextMenu("DebugList")]
+    public void DebugList()
+    {
+        ctrlerList.ForEach(item =>
+        {
+            Debug.LogError(string.Format("{0},{1}", item.dataIndex, item.height));
+        });
+
     }
 }

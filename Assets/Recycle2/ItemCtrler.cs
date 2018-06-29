@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
 
 public abstract class ItemCtrler : MonoBehaviour,IRecycle
 {
@@ -13,6 +12,13 @@ public abstract class ItemCtrler : MonoBehaviour,IRecycle
         get
         {
             return transform.FindChild("Label").GetComponent<UILabel>();
+        }
+    }
+    public UISprite bg
+    {
+        get
+        {
+            return transform.FindChild("Sprite").GetComponent<UISprite>();
         }
     }
 
@@ -35,7 +41,6 @@ public abstract class ItemCtrler : MonoBehaviour,IRecycle
         set
         {
             mInfo=value;
-            UpdateItem();
         }
     }
     public enum ItemTypes
@@ -48,8 +53,28 @@ public abstract class ItemCtrler : MonoBehaviour,IRecycle
         get;
         set;
     }
-
     abstract public void UpdateItem();
-    
 
+    public int height;
+
+    public void UpdateHeight(int h=0)
+    {
+        if (h == 0)
+        {
+            if (info is MsgOne)
+            {
+                height = 80;
+            }
+            else if (info is MsgTwo)
+            {
+                height = 100;
+            }
+        }
+       else
+        {
+            height = h;
+        }
+
+        bg.height = height;
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEditor;
 
 public class ItemOneCtrler : ItemCtrler
 {
@@ -8,4 +9,5 @@ public class ItemOneCtrler : ItemCtrler
         MsgOne infoO = info as MsgOne;
         lbl.text = infoO.contentOne;
     }
+
 }
