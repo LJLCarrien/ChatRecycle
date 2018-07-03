@@ -128,9 +128,14 @@ public class ViewCtrler : MonoBehaviour
     public int changIndex = 0;
 
     [ContextMenu("Move")]
-    public void ResetPos()
+    public void Move()
     {
         mRecycle.MoveItemByIndex(changIndex);
+    }
+    [ContextMenu("ForceRefresh")]
+    public void ForceRefresh()
+    {
+        mRecycle.ForceReshItem();
     }
     [ContextMenu("SetHeight")]
 

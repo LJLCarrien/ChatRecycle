@@ -399,10 +399,10 @@ public class Recycle<T> where T : class, IRecycle
     }
 
     #region 跳转
-    public void MoveItemByIndex(int i)
+    public void MoveItemByIndex(int dataIndex)
     {
         MoveAllItemToResPool();
-        MoveItemByIndex(i, mPanelBounds);
+        MoveItemByIndex(dataIndex, mPanelBounds);
     }
     
     private void MoveItemByIndex(int dataIndex, Bounds firstBounds)
@@ -438,7 +438,15 @@ public class Recycle<T> where T : class, IRecycle
     /// </summary>
     public void ForceReshItem()
     {
+        var firstGo = showItemGoLinkList.First.Value;
+        var firstCtrler = ItemGoDic[firstGo];
 
+        var scrollBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
+        var center = new Vector3(scrollBounds.center.x, scrollBounds.center.y - mScrollView.panel.clipOffset.y);
+        scrollBounds.center = center;
+
+        MoveAllItemToResPool();
+        MoveItemByIndex(firstCtrler.dataIndex, scrollBounds);
     }
     #region 事件
     private void RemoveEvent()
