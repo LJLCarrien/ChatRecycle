@@ -23,11 +23,11 @@ public class ViewCtrler : MonoBehaviour
     List<Msg> dataList = new List<Msg>();
     //dataIndex,Height
     Dictionary<int, int> SpecialHeightDic = new Dictionary<int, int>();
-
+    private int count = 10;
     public void InitData()
     {
         SpecialHeightDic.Clear();
-        for (int i = 0; i < 23; i++)
+        for (int i = 0; i < count; i++)
         {
             if (i % 2 == 0)
             {
@@ -41,7 +41,24 @@ public class ViewCtrler : MonoBehaviour
             }
         }
     }
-
+    [ContextMenu("Add")]
+    public void AddData()
+    {
+        for (int i = count; i < count + 5; i++)
+        {
+            if (i % 2 == 0)
+            {
+                MsgOne m = new MsgOne { fromWho = 1, contentOne = i.ToString() };
+                dataList.Add(m);
+            }
+            else
+            {
+                MsgTwo m = new MsgTwo { fromWho = 1, contentTwo = 0 + i.ToString() };
+                dataList.Add(m);
+            }
+        }
+        mRecycle.UpdateData(dataList.Count);
+    }
     void Start()
     {
         InitData();
@@ -151,6 +168,13 @@ public class ViewCtrler : MonoBehaviour
         {
             SpecialHeightDic.Add(changIndex, newHeight);
         }
+    }
+    [ContextMenu("resetPos")]
+
+    public void resetPos()
+    {
+        mRecycle.ResetPostion();
+
     }
     [ContextMenu("DebugList")]
     public void DebugList()
