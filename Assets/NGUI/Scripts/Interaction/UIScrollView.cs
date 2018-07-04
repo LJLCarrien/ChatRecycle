@@ -156,8 +156,10 @@ public class UIScrollView : MonoBehaviour
 
 	public OnDragNotification onStoppedMoving;
 
-	// Deprecated functionality. Use 'movement' instead.
-	[HideInInspector][SerializeField] Vector3 scale = new Vector3(1f, 0f, 0f);
+    public OnDragNotification onScrollWheel;
+
+    // Deprecated functionality. Use 'movement' instead.
+    [HideInInspector][SerializeField] Vector3 scale = new Vector3(1f, 0f, 0f);
 
 	// Deprecated functionality. Use 'contentPivot' instead.
 	[SerializeField][HideInInspector] Vector2 relativePositionOnReset = Vector2.zero;
@@ -912,8 +914,9 @@ public class UIScrollView : MonoBehaviour
 			mShouldMove |= shouldMove;
 			if (Mathf.Sign(mScroll) != Mathf.Sign(delta)) mScroll = 0f;
 			mScroll += delta * scrollWheelFactor;
-		}
-	}
+            if (onScrollWheel != null) onScrollWheel();
+        }
+    }
 
 	/// <summary>
 	/// Apply the dragging momentum.
