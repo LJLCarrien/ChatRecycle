@@ -297,12 +297,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement: 1
   dragEffect: 2
-  restrictWithinPanel: 0
+  restrictWithinPanel: 1
   constrainOnDrag: 0
-  disableDragIfFits: 0
+  disableDragIfFits: 1
   smoothDragStart: 1
   iOSDragEmulation: 1
-  scrollWheelFactor: 50
+  scrollWheelFactor: 0.25
   momentumAmount: 35
   dampenStrength: 9
   horizontalScrollBar: {fileID: 0}
@@ -604,7 +604,7 @@ Transform:
   m_GameObject: {fileID: 1594653302}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.0033557047, y: 0.0033557047, z: 0.0033557047}
+  m_LocalScale: {x: 0.0028571428, y: 0.0028571428, z: 0.0028571428}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 2099621772}

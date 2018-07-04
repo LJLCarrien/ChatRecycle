@@ -47,6 +47,7 @@ public class Recycle<T> where T : class, IRecycle
 
         mScrollView = sv;
         mScrollView.restrictWithinPanel = false;
+        mScrollView.disableDragIfFits = false;
         mScrollView.transform.DestroyChildren();
 
         mPanel = sv.panel;
@@ -212,24 +213,31 @@ public class Recycle<T> where T : class, IRecycle
 
     private void OnClipMove(UIPanel panel)
     {
+        if (mScrollView == null || mDataCount == 0) return;
         var scrollViewBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
         var tPanelOffset = panel.CalculateConstrainOffset(scrollViewBounds.min, scrollViewBounds.max);
 
         var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
         var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
-        //Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
         moveDir = moveTop ? -1 : moveDown ? 1 : 0;
+        //Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
         //Debug.LogError(tPanelOffset.y);
         //Debug.LogError(moveDir);
+        if (showItemGoLinkList.Count == 0) return;
+        var firstGo = showItemGoLinkList.First.Value;//第一个
+        T firstCtrler = null;
+        ItemGoDic.TryGetValue(firstGo, out firstCtrler);
+
+        var lastGo = showItemGoLinkList.Last.Value;//最后一个
+        T lastCtrler = null;
+        ItemGoDic.TryGetValue(lastGo, out lastCtrler);
         if (moveTop)
         {
             //往上拉
             //Debug.LogError("往上拉<-1");
             if (showItemGoLinkList.Count > 0)
             {
-                var lastGo = showItemGoLinkList.Last.Value;//最后一个
-                T lastCtrler = null;
-                ItemGoDic.TryGetValue(lastGo, out lastCtrler);
+             
                 if (lastCtrler != null)
                 {
                     var firstIndex = lastCtrler.dataIndex;
@@ -281,9 +289,7 @@ public class Recycle<T> where T : class, IRecycle
             //Debug.LogError("往下拉>1");
             if (showItemGoLinkList.Count > 0)
             {
-                var firstGo = showItemGoLinkList.First.Value;//第一个
-                T firstCtrler = null;
-                ItemGoDic.TryGetValue(firstGo, out firstCtrler);
+             
                 if (firstCtrler != null)
                 {
                     var firstIndex = firstCtrler.dataIndex;
@@ -327,11 +333,13 @@ public class Recycle<T> where T : class, IRecycle
         }
         else
         {
-            bRestrictWithinPanel = false;
+            bool isLastData = lastCtrler.dataIndex == mDataCount - 1;
+            bool isFirstData = firstCtrler.dataIndex == 0;
+            bRestrictWithinPanel = isFirstData || isLastData;
 
             if (!mScrollView.isDragging)
             {
-                Debug.LogError("234234");
+                //Debug.LogError("234234");
                 CheckBeyondRemoveToResPool();
             }
         }
@@ -488,7 +496,7 @@ public class Recycle<T> where T : class, IRecycle
         mScrollView.onStoppedMoving -= OnStoppedMoving;
         mScrollView.onDragStarted -= OnDragStarted;
         mScrollView.onDragFinished -= OnDragFinished;
-        //mScrollView.onScrollWheel -= OnScrollWheel;
+        mScrollView.onScrollWheel -= OnScrollWheel;
 
     }
 
@@ -498,7 +506,7 @@ public class Recycle<T> where T : class, IRecycle
         mScrollView.onStoppedMoving += OnStoppedMoving;
         mScrollView.onDragStarted += OnDragStarted;
         mScrollView.onDragFinished += OnDragFinished;
-        //mScrollView.onScrollWheel += OnScrollWheel;
+        mScrollView.onScrollWheel += OnScrollWheel;
 
     }
 
@@ -518,15 +526,16 @@ public class Recycle<T> where T : class, IRecycle
     {
         //CheckBeyondRemoveToResPool();
     }
-    //private void OnScrollWheel()
-    //{
-    //    if (ScrollViewHasSpace())
-    //    {
-    //        mScrollView.DisableSpring();
-    //        OnClipMove(mPanel);
-    //    }
-           
+    private void OnScrollWheel()
+    {
+        if (ScrollViewHasSpace())
+        {
+            //Debug.LogError("asdsasd");
+            mScrollView.DisableSpring();
+            RestrictWithinBounds();
+        }
 
-    //}
+
+    }
     #endregion
 }

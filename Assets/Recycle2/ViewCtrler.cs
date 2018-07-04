@@ -23,7 +23,7 @@ public class ViewCtrler : MonoBehaviour
     List<Msg> dataList = new List<Msg>();
     //dataIndex,Height
     Dictionary<int, int> SpecialHeightDic = new Dictionary<int, int>();
-    private int count = 100;
+    private int count = 1;
     public void InitData()
     {
         SpecialHeightDic.Clear();
@@ -44,7 +44,7 @@ public class ViewCtrler : MonoBehaviour
     [ContextMenu("Add")]
     public void AddData()
     {
-        for (int i = count; i < count + 5; i++)
+        for (int i = count; i < changIndex; i++)
         {
             if (i % 2 == 0)
             {
@@ -59,12 +59,18 @@ public class ViewCtrler : MonoBehaviour
         }
         mRecycle.UpdateData(dataList.Count);
     }
-    void Start()
+
+    [ContextMenu("Init")]
+    void Initit()
     {
         InitData();
-        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem);
         mRecycle.ResetPostion(dataList.Count);
+    }
+    void Start()
+    {
+        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem);
         mRecycle.GetDataType = OnGetDataType;
+        Initit();
     }
     private int OnGetDataType(int dIndex)
     {
