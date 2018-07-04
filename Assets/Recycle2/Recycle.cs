@@ -17,21 +17,22 @@ public class Recycle<T> where T : class, IRecycle
     public Bounds mPanelBounds { get; private set; }
     public UIScrollView.Movement mMovement { get { return mScrollView.movement; } }
 
-    public Func<int, T> mAddItem;
-    public Action<T, int> mUpdateItem;
+    private Func<int, T> mAddItem;
+    private Action<T, int> mUpdateItem;
+    //可选回调
+    public Func<int, int> GetDataType;
 
-    public readonly int Interval = 10;//间隔
+    private readonly int Interval = 10;//间隔
 
     //展示中的
-    public LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
+    private LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
 
     private GameObject mResPool;
-    public Dictionary<GameObject, T> ItemGoDic = new Dictionary<GameObject, T>();
+    private Dictionary<GameObject, T> ItemGoDic = new Dictionary<GameObject, T>();
 
 
     public int mDataCount { get; private set; }
 
-    public Func<int, int> GetDataType;
     #region 入口
     /// <summary>
     /// 初始化
@@ -89,13 +90,13 @@ public class Recycle<T> where T : class, IRecycle
 
     #region 预设管理
 
-    public enum ItemsState
+    private enum ItemsState
     {
         Head,
         Tail
     }
     //linkList
-    public void Add2ShowListFrom(ItemsState state, GameObject go)
+    private void Add2ShowListFrom(ItemsState state, GameObject go)
     {
         if (state == ItemsState.Tail)
             showItemGoLinkList.AddLast(go);
@@ -105,7 +106,7 @@ public class Recycle<T> where T : class, IRecycle
         //Debug.LogError(showItemGoLinkList.Count);
     }
 
-    public void RemoveShowListFrom(ItemsState state)
+    private void RemoveShowListFrom(ItemsState state)
     {
         if (showItemGoLinkList.Count <= 0) return;
         GameObject go = null;
@@ -330,6 +331,7 @@ public class Recycle<T> where T : class, IRecycle
 
             if (!mScrollView.isDragging)
             {
+                Debug.LogError("234234");
                 CheckBeyondRemoveToResPool();
             }
         }
@@ -385,7 +387,6 @@ public class Recycle<T> where T : class, IRecycle
         var isHasSpace = showItemGoLinkList.Count == mDataCount && tHasSpace;
         return isHasSpace;
     }
-
     //检测显示边界
     private void RestrictWithinBounds()
     {
@@ -484,8 +485,10 @@ public class Recycle<T> where T : class, IRecycle
     private void RemoveEvent()
     {
         mPanel.onClipMove -= OnClipMove;
-        mScrollView.onMomentumMove -= OnStoppedMoving;
+        mScrollView.onStoppedMoving -= OnStoppedMoving;
         mScrollView.onDragStarted -= OnDragStarted;
+        mScrollView.onDragFinished -= OnDragFinished;
+        //mScrollView.onScrollWheel -= OnScrollWheel;
 
     }
 
@@ -495,6 +498,7 @@ public class Recycle<T> where T : class, IRecycle
         mScrollView.onStoppedMoving += OnStoppedMoving;
         mScrollView.onDragStarted += OnDragStarted;
         mScrollView.onDragFinished += OnDragFinished;
+        //mScrollView.onScrollWheel += OnScrollWheel;
 
     }
 
@@ -514,6 +518,15 @@ public class Recycle<T> where T : class, IRecycle
     {
         //CheckBeyondRemoveToResPool();
     }
+    //private void OnScrollWheel()
+    //{
+    //    if (ScrollViewHasSpace())
+    //    {
+    //        mScrollView.DisableSpring();
+    //        OnClipMove(mPanel);
+    //    }
+           
 
+    //}
     #endregion
 }
