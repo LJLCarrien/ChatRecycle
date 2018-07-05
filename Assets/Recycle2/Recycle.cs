@@ -337,7 +337,7 @@ public class Recycle<T> where T : class, IRecycle
 
             }
         }
-        else if (moveDown | moveRight)
+        else if (moveDown || moveRight)
         {
             //往下拉
             //Debug.LogError("往下拉>1");
