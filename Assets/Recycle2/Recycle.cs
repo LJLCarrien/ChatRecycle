@@ -26,13 +26,17 @@ public class Recycle<T> where T : class, IRecycle
 
     //展示中的
     private LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
+    public int mDataCount { get; private set; }
 
     private GameObject mResPool;
     private Dictionary<GameObject, T> ItemGoDic = new Dictionary<GameObject, T>();
 
+    private void ResetAll()
+    {
+        //mPanel.clipOffset = Vector2.zero;
 
-    public int mDataCount { get; private set; }
 
+    }
     #region 入口
     /// <summary>
     /// 初始化
@@ -44,16 +48,19 @@ public class Recycle<T> where T : class, IRecycle
 
     public Recycle(UIScrollView sv, int itemInterval, Func<int, T> addItem, Action<T, int> updateItem)
     {
-
         mScrollView = sv;
+        mPanel = sv.panel;
+
+        var mCenter = new Vector3(mPanel.finalClipRegion.x, mPanel.finalClipRegion.y, 0) + mScrollView.transform.localPosition;
+        var mSize = new Vector3(mPanel.finalClipRegion.z, mPanel.finalClipRegion.w);
+        mPanelBounds = new Bounds(mCenter, mSize);
+        mPanel.baseClipRegion = new Vector4(mCenter.x, mCenter.y, mSize.x, mSize.y);
+
+        mScrollView.transform.localPosition = Vector3.zero;
         mScrollView.restrictWithinPanel = false;
         mScrollView.disableDragIfFits = false;
         mScrollView.transform.DestroyChildren();
 
-        mPanel = sv.panel;
-        var mCenter = new Vector3(mPanel.finalClipRegion.x, mPanel.finalClipRegion.y, 0);
-        var mSize = new Vector3(mPanel.finalClipRegion.z, mPanel.finalClipRegion.w);
-        mPanelBounds = new Bounds(mCenter, mSize);
 
         Interval = itemInterval;
         mAddItem = addItem;
@@ -65,6 +72,8 @@ public class Recycle<T> where T : class, IRecycle
         mResPool = NGUITools.AddChild(mScrollView.transform.parent.gameObject);
         mResPool.name = "ItemsResPool";
         mResPool.SetActive(false);
+
+
 
     }
     /// <summary>
@@ -143,9 +152,11 @@ public class Recycle<T> where T : class, IRecycle
         {
             RemoveShowListFrom(ItemsState.Tail);
         }
-        mPanel.clipOffset = Vector2.zero;
-        mScrollView.transform.localPosition = Vector3.zero;
+        //mPanel.clipOffset = Vector2.zero;
+        //mScrollView.transform.localPosition = Vector3.zero;
     }
+
+
     /// <summary>
     /// 从缓存池获取预设，无则添加
     /// </summary>
@@ -219,25 +230,34 @@ public class Recycle<T> where T : class, IRecycle
 
         var moveTop = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y < -1;
         var moveDown = mMovement == UIScrollView.Movement.Vertical && tPanelOffset.y > 1;
+
+        var moveLeft = mMovement == UIScrollView.Movement.Horizontal && tPanelOffset.x > 1;
+        var moveRight = mMovement == UIScrollView.Movement.Horizontal && tPanelOffset.x < -1;
         moveDir = moveTop ? -1 : moveDown ? 1 : 0;
         //Debug.LogError(tPanelOffset.x + "," + tPanelOffset.y);
-        //Debug.LogError(tPanelOffset.y);
+        //Debug.LogError(tPanelOffset.x);
         //Debug.LogError(moveDir);
         if (showItemGoLinkList.Count == 0) return;
+
         var firstGo = showItemGoLinkList.First.Value;//第一个
         T firstCtrler = null;
         ItemGoDic.TryGetValue(firstGo, out firstCtrler);
+        var firstCtrlRealBound = NGUIMath.CalculateRelativeWidgetBounds(firstGo.transform);
+        firstCtrlRealBound.center += firstGo.transform.localPosition;
 
         var lastGo = showItemGoLinkList.Last.Value;//最后一个
         T lastCtrler = null;
         ItemGoDic.TryGetValue(lastGo, out lastCtrler);
-        if (moveTop)
+        var lastCtrlRealBound = NGUIMath.CalculateRelativeWidgetBounds(lastGo.transform);
+        lastCtrlRealBound.center += lastGo.transform.localPosition;
+
+        if (moveTop || moveLeft)
         {
             //往上拉
             //Debug.LogError("往上拉<-1");
             if (showItemGoLinkList.Count > 0)
             {
-             
+
                 if (lastCtrler != null)
                 {
                     var firstIndex = lastCtrler.dataIndex;
@@ -245,24 +265,32 @@ public class Recycle<T> where T : class, IRecycle
 
                     if (firstIndex < mDataCount - 1)
                     {
-                        if (mMovement == UIScrollView.Movement.Vertical)
-                        {
-                            T ctrler = null;
-                            var index = ++firstIndex;
-                            ctrler = GetItemInResPoolOrAdd(index);
-                            //Debug.Log(index);
 
-                            if (ctrler != null)
+                        T ctrler = null;
+                        var index = ++firstIndex;
+                        ctrler = GetItemInResPoolOrAdd(index);
+                        //Debug.Log(index);
+
+                        if (ctrler != null)
+                        {
+                            var go = ctrler.GetGo();
+                            if (mUpdateItem != null) mUpdateItem(ctrler, index);
+                            ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            if (mMovement == UIScrollView.Movement.Vertical)
                             {
-                                var go = ctrler.GetGo();
-                                if (mUpdateItem != null) mUpdateItem(ctrler, index);
-                                ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
-                                var tempBoundy = lastGo.transform.localPosition.y - lastCtrler.bounds.size.y - Interval;
-                                go.transform.localPosition = new Vector3(0, tempBoundy, 0);
+                                var tempBoundy = lastCtrlRealBound.min.y - ctrler.bounds.max.y - Interval;//ctrler.bounds.max.y 这里相当于size/2
+                                go.transform.localPosition = new Vector3(mPanelBounds.center.x, tempBoundy, 0);
                                 Add2ShowListFrom(ItemsState.Tail, go);
-                                //Debug.Log(tempBoundy);
                             }
+                            else if (mMovement == UIScrollView.Movement.Horizontal)
+                            {
+                                var tempBoundx = lastCtrlRealBound.max.x + (-ctrler.bounds.min.x) + Interval;//ctrler.bounds.max.y 这里相当于size/2
+                                go.transform.localPosition = new Vector3(tempBoundx, mPanelBounds.center.y, 0);
+                                Add2ShowListFrom(ItemsState.Tail, go);
+                            }
+
                         }
+
                     }
                     //删除
                     bool isLastData = lastCtrler.dataIndex == mDataCount - 1;
@@ -283,35 +311,43 @@ public class Recycle<T> where T : class, IRecycle
 
             }
         }
-        else if (moveDown)
+        else if (moveDown | moveRight)
         {
             //往下拉
             //Debug.LogError("往下拉>1");
             if (showItemGoLinkList.Count > 0)
             {
-             
+
                 if (firstCtrler != null)
                 {
                     var firstIndex = firstCtrler.dataIndex;
 
                     if (firstIndex > 0)
                     {
-                        if (mMovement == UIScrollView.Movement.Vertical)
+
+                        T ctrler = null;
+                        var index = --firstIndex;
+                        ctrler = GetItemInResPoolOrAdd(index);
+                        if (ctrler != null)
                         {
-                            T ctrler = null;
-                            var index = --firstIndex;
-                            ctrler = GetItemInResPoolOrAdd(index);
-                            if (ctrler != null)
+                            var go = ctrler.GetGo();
+                            if (mUpdateItem != null) mUpdateItem(ctrler, index);
+                            ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                            if (mMovement == UIScrollView.Movement.Vertical)
                             {
-                                var go = ctrler.GetGo();
-                                if (mUpdateItem != null) mUpdateItem(ctrler, index);
-                                ctrler.bounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
-                                var tempBoundy = firstGo.transform.localPosition.y + Interval + ctrler.bounds.size.y;
-                                go.transform.localPosition = new Vector3(0, tempBoundy, 0);
+                                var tempBoundy = firstCtrlRealBound.max.y + (-ctrler.bounds.min.y) + Interval;//-ctrler.bounds.min.y 这里相当于size/2
+                                go.transform.localPosition = new Vector3(mPanelBounds.center.x, tempBoundy, 0);
                                 Add2ShowListFrom(ItemsState.Head, go);
                                 //Debug.Log(ctrler.dataIndex);
                             }
+                            else if (mMovement == UIScrollView.Movement.Horizontal)
+                            {
+                                var tempBoundx = firstCtrlRealBound.min.x - (-ctrler.bounds.min.x) - Interval;//-ctrler.bounds.min.y 这里相当于size/2
+                                go.transform.localPosition = new Vector3(tempBoundx, mPanelBounds.center.y, 0);
+                                Add2ShowListFrom(ItemsState.Head, go);
+                            }
                         }
+                      
                     }
                     //删除
                     bool isFirstData = firstCtrler.dataIndex == 0;
@@ -418,6 +454,17 @@ public class Recycle<T> where T : class, IRecycle
                 SpringPanel.Begin(mPanel.gameObject, pos, 8f);
 
             }
+            else if (mMovement == UIScrollView.Movement.Horizontal)
+            {
+                var scrollBounds = NGUIMath.CalculateRelativeWidgetBounds(mScrollView.transform);
+                var center = new Vector3(scrollBounds.center.x - mScrollView.panel.clipOffset.x, scrollBounds.center.y);
+                scrollBounds.center = center;
+                var calOffsetX = mPanelBounds.min.x - scrollBounds.min.x - mPanel.clipSoftness.x;
+                var pos = mScrollView.transform.localPosition + new Vector3(calOffsetX, 0, 0);
+                pos.x = Mathf.Round(pos.x);
+                pos.y = Mathf.Round(pos.y);
+                SpringPanel.Begin(mPanel.gameObject, pos, 8f);
+            }
         }
         else
         {
@@ -462,11 +509,29 @@ public class Recycle<T> where T : class, IRecycle
                 ctrler = GetItemInResPoolOrAdd(dataIndex);
                 if (ctrler == null) return;
                 go = ctrler.GetGo();
-                if (mUpdateItem != null && ctrler != null) mUpdateItem(ctrler, dataIndex);
+                if (mUpdateItem != null) mUpdateItem(ctrler, dataIndex);
                 itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);//relactive/Abusoute?
                 ctrler.bounds = itemBounds;
-                go.transform.localPosition = new Vector3(0, tempBoundy - itemBounds.max.y - mPanel.clipSoftness.y, 0);
+                go.transform.localPosition = new Vector3(mPanelBounds.center.x, tempBoundy - itemBounds.max.y - mPanel.clipSoftness.y, 0);
                 tempBoundy = tempBoundy - itemBounds.size.y - Interval;
+                Add2ShowListFrom(ItemsState.Tail, go);
+                dataIndex++;
+            }
+        }
+        else if (mMovement == UIScrollView.Movement.Horizontal)
+        {
+            var tempBoundx = firstBounds.min.x;
+            while (tempBoundx < mPanelBounds.max.x)
+            {
+                //if (dataIndex >= mDataCount) break;
+                ctrler = GetItemInResPoolOrAdd(dataIndex);
+                if (ctrler == null) return;
+                go = ctrler.GetGo();
+                if (mUpdateItem != null) mUpdateItem(ctrler, dataIndex);
+                itemBounds = NGUIMath.CalculateRelativeWidgetBounds(go.transform);
+                ctrler.bounds = itemBounds;
+                go.transform.localPosition = new Vector3(tempBoundx + itemBounds.max.x + mPanel.clipSoftness.x, mPanelBounds.center.y, 0);
+                tempBoundx = tempBoundx + itemBounds.size.x + Interval;
                 Add2ShowListFrom(ItemsState.Tail, go);
                 dataIndex++;
             }

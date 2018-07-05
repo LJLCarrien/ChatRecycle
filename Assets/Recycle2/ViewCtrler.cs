@@ -23,7 +23,7 @@ public class ViewCtrler : MonoBehaviour
     List<Msg> dataList = new List<Msg>();
     //dataIndex,Height
     Dictionary<int, int> SpecialHeightDic = new Dictionary<int, int>();
-    private int count = 1;
+    private int count = 20;
     public void InitData()
     {
         SpecialHeightDic.Clear();

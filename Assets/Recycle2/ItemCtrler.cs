@@ -56,25 +56,29 @@ public abstract class ItemCtrler : MonoBehaviour,IRecycle
     abstract public void UpdateItem();
 
     public int height;
+    public int width;
 
     public void UpdateHeight(int h=0)
     {
-        if (h == 0)
-        {
-            if (info is MsgOne)
-            {
-                height = 80;
-            }
-            else if (info is MsgTwo)
-            {
-                height = 100;
-            }
-        }
-       else
-        {
-            height = h;
-        }
+        // if (h == 0)
+        // {
+        //     if (info is MsgOne)
+        //     {
+        //         height = 80;
+        //     }
+        //     else if (info is MsgTwo)
+        //     {
+        //         height = 100;
+        //     }
+        // }
+        //else
+        // {
+        //     height = h;
+        // }
 
+        width = UnityEngine.Random.Range(50, 150);
+        height = UnityEngine.Random.Range(50, 150);
+        bg.width = width;
         bg.height = height;
     }
 }

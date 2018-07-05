@@ -353,7 +353,7 @@ MonoBehaviour:
   mClipTexture: {fileID: 0}
   mAlpha: 1
   mClipping: 3
-  mClipRange: {x: 0, y: 0, z: 300, w: 500}
+  mClipRange: {x: 0, y: 0, z: 500, w: 300}
   mClipSoftness: {x: 4, y: 4}
   mDepth: 1
   mSortingOrder: 0
@@ -428,13 +428,13 @@ MonoBehaviour:
   updateAnchors: 1
   mColor: {r: 0.7205882, g: 0.7205882, b: 0.7205882, a: 1}
   mPivot: 4
-  mWidth: 300
-  mHeight: 500
+  mWidth: 500
+  mHeight: 300
   mDepth: 0
   autoResizeBoxCollider: 0
   hideIfOffScreen: 0
   keepAspectRatio: 0
-  aspectRatio: 0.6
+  aspectRatio: 1.6666666
   mType: 1
   mFillDirection: 4
   mFillAmount: 1
@@ -604,7 +604,7 @@ Transform:
   m_GameObject: {fileID: 1594653302}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.0028571428, y: 0.0028571428, z: 0.0028571428}
+  m_LocalScale: {x: 0.0034965035, y: 0.0034965035, z: 0.0034965035}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 2099621772}
@@ -710,7 +710,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 300, y: 500, z: 0}
+  m_Size: {x: 500, y: 300, z: 0}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1961947699
 MonoBehaviour:
@@ -724,31 +724,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   leftAnchor:
-    target: {fileID: 1278877764}
+    target: {fileID: 917734244}
     relative: 0
     absolute: 0
   rightAnchor:
-    target: {fileID: 1278877764}
+    target: {fileID: 917734244}
     relative: 1
     absolute: 0
   bottomAnchor:
-    target: {fileID: 1278877764}
+    target: {fileID: 917734244}
     relative: 0
     absolute: 0
   topAnchor:
-    target: {fileID: 1278877764}
+    target: {fileID: 917734244}
     relative: 1
     absolute: 0
   updateAnchors: 0
   mColor: {r: 1, g: 1, b: 1, a: 1}
   mPivot: 4
-  mWidth: 300
-  mHeight: 500
+  mWidth: 500
+  mHeight: 300
   mDepth: 0
   autoResizeBoxCollider: 1
   hideIfOffScreen: 0
   keepAspectRatio: 0
-  aspectRatio: 0.6
+  aspectRatio: 1.6666666
 --- !u!1 &2099621771
 GameObject:
   m_ObjectHideFlags: 0
