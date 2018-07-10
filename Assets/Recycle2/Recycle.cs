@@ -15,10 +15,20 @@ public interface IRecycle
 ///     当使用垂直拖动时，预设item中心，任一水平线居中 (预设中心距离左右距离) 
 ///     当使用水平拖动时，预设item中心，任一垂直线居中 (预设中心距离上下距离)
 /// scrollView:
-///     不要有自物体，子物体运行时会删掉。
+///     不要有子物体，子物体运行时会删掉。
 ///     Restrict Within Panel、Cancel Drag If Fits这两个勾选与否不产生影响。
 ///     如绑定ScrollView的onXX方法的回调,使用onRecycleXX代替，如没，则可以自行调用scrollView的。
-/// 
+/// 使用：
+///     1、初始化：使用构造方法UIRecycleTableUp
+///     2、更新数据：需要归位：ResetPostion(数量)，第一次使用一定要传入数量。不保持排版，刷新数据。
+///                 不需要归为：UpdateData(数量)。保持当前排版，仅刷新数据。
+///     3、跳转：MoveItemByIndex()
+///     4、销毁：DestoryRecycle()
+/// 回调绑定：
+///     【必须】mAddItem    加载item,传入dataIndex
+///     【必须】mUpdateItem 更新item,传回T和dataIndex
+///     【可选】mGetDataType 多种样式的则【必须】绑定此方法，传入dataIndex，传出的类型用int类型区分。
+///      
 /// </summary>
 public class Recycle<T> where T : class, IRecycle
 {
@@ -27,20 +37,26 @@ public class Recycle<T> where T : class, IRecycle
     public Bounds mPanelBounds { get; private set; }
     public UIScrollView.Movement mMovement { get { return mScrollView.movement; } }
 
-    private Func<int, T> mAddItem;
-    private Action<T, int> mUpdateItem;
-    //可选回调
-    public Func<int, int> GetDataType;
-
-    private readonly int Interval = 10;//间隔
+    #region 数据
+    //<dataIndex,>
+    private Func<int, T> mAddItem;      //添加
+    //<,dataIndex>
+    private Action<T, int> mUpdateItem; //更新
+    private Action<T> mDeleteItem;      //删除
+    //<dataIndex,type>
+    private Func<int, int> mGetDataType; //获取类型
 
     //展示中的
     private LinkedList<GameObject> showItemGoLinkList = new LinkedList<GameObject>();
     public int mDataCount { get; private set; }
-
+    //资源池里的
     private GameObject mResPool;
+    //所有的
     private Dictionary<GameObject, T> ItemGoDic = new Dictionary<GameObject, T>();
+    //间隔
+    private readonly int Interval = 10;
 
+    #endregion
     #region 入口
     /// <summary>
     /// 初始化
@@ -50,7 +66,7 @@ public class Recycle<T> where T : class, IRecycle
     /// <param name="addItem"> 添加回调</param>
     /// <param name="updateItem">更新回调</param>
 
-    public Recycle(UIScrollView sv, int itemInterval, Func<int, T> addItem, Action<T, int> updateItem)
+    public Recycle(UIScrollView sv, int itemInterval, Func<int, T> addItem, Action<T, int> updateItem, Func<int, int> getDataType, Action<T> deleteItem)
     {
         if (sv == null) return;
         mScrollView = sv;
@@ -67,10 +83,12 @@ public class Recycle<T> where T : class, IRecycle
         mScrollView.disableDragIfFits = false;
         mScrollView.transform.DestroyChildren();
 
-
         Interval = itemInterval;
+
         mAddItem = addItem;
         mUpdateItem = updateItem;
+        mGetDataType = getDataType;
+        mDeleteItem = deleteItem;
 
         mDataCount = 0;
         RegisterEvent();
@@ -89,6 +107,29 @@ public class Recycle<T> where T : class, IRecycle
 
 
     }
+
+    /// <summary>
+    /// 重置位置
+    /// </summary>
+    /// <param name="dataCount"></param>
+    public void ResetPostion(int dataCount = -1)
+    {
+        if (dataCount != -1)
+            mDataCount = dataCount;
+
+        MoveItemByIndex(0);
+    }
+    #endregion
+
+    #region 清理
+    public void RemoveAllItems()
+    {
+        if (mDeleteItem == null || ItemGoDic == null) return;
+        foreach (var tCtrler in ItemGoDic.Values)
+        {
+            mDeleteItem(tCtrler);
+        }
+    }
     /// <summary>
     /// 销毁清理
     /// </summary>
@@ -104,29 +145,16 @@ public class Recycle<T> where T : class, IRecycle
         mAddItem = null;
         mUpdateItem = null;
 
+        mDeleteItem = null;
+        mGetDataType = null;
+
         mScrollView = null;
         mPanel = null;
         mDataCount = 0;
-        if (mResPool != null)
-        {
-            mResPool.transform.DestroyChildren();
-            NGUITools.Destroy(mResPool);
-        }
 
-    }
-    /// <summary>
-    /// 重置位置
-    /// </summary>
-    /// <param name="dataCount"></param>
-    public void ResetPostion(int dataCount = -1)
-    {
-        if (dataCount != -1)
-            mDataCount = dataCount;
-
-        MoveItemByIndex(0);
+        ItemGoDic.Clear();
     }
     #endregion
-
     #region 预设管理
 
     private enum ItemsState
@@ -192,9 +220,9 @@ public class Recycle<T> where T : class, IRecycle
     private T GetItemInResPoolOrAdd(int dindex)
     {
         int dataType = -1;
-        if (GetDataType != null)
+        if (mGetDataType != null)
         {
-            dataType = GetDataType(dindex);
+            dataType = mGetDataType(dindex);
             if (dataType == -1) return null;
         }
         T ctrler = null;
