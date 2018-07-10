@@ -68,8 +68,7 @@ public class ViewCtrler : MonoBehaviour
     }
     void Start()
     {
-        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem);
-        mRecycle.GetDataType = OnGetDataType;
+        mRecycle = new Recycle<ItemCtrler>(mScrollView, 10, AddItem, UpdateItem, OnGetDataType,null);
         Initit();
     }
     private int OnGetDataType(int dIndex)
