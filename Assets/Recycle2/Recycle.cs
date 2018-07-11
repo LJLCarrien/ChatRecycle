@@ -534,6 +534,9 @@ public class Recycle<T> where T : class, IRecycle
     /// <param name="dataIndex"></param>
     public void MoveItemByIndex(int dataIndex)
     {
+        mPanel.transform.localPosition = Vector3.zero;
+        mPanel.clipOffset = Vector2.zero;
+
         MoveAllItemToResPool();
         if (mDataCount == 0) return;
         MoveItemByIndex(dataIndex, mPanelBounds);
