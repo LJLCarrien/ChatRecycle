@@ -534,11 +534,10 @@ public class Recycle<T> where T : class, IRecycle
     /// <param name="dataIndex"></param>
     public void MoveItemByIndex(int dataIndex)
     {
+        MoveAllItemToResPool();
         mPanel.transform.localPosition = Vector3.zero;
         mPanel.clipOffset = Vector2.zero;
-
-        MoveAllItemToResPool();
-        if (mDataCount == 0) return;
+        if (mDataCount < 0) return;
         MoveItemByIndex(dataIndex, mPanelBounds);
     }
     /// <summary>
@@ -547,6 +546,7 @@ public class Recycle<T> where T : class, IRecycle
     /// <param name="dataCount"></param>
     public void UpdateData(int dataCount)
     {
+        if (dataCount < 0) return;
         mDataCount = dataCount;
         ForceReshItem();
     }
