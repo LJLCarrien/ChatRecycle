@@ -482,7 +482,7 @@ public class Recycle<T> where T : class, IRecycle
 
         var tHasSpace = mMovement == UIScrollView.Movement.Vertical ? scrollBounds.size.y < mPanelBounds.size.y :
                mMovement == UIScrollView.Movement.Horizontal ? scrollBounds.size.x < mPanelBounds.size.x : false;
-        var isHasSpace = showItemGoLinkList.Count == mDataCount && tHasSpace;
+        var isHasSpace = tHasSpace | (showItemGoLinkList.Count == mDataCount && tHasSpace);
         return isHasSpace;
     }
     //检测显示边界
